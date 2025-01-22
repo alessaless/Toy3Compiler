@@ -1,0 +1,40 @@
+package Nodes.Stat;
+
+import Nodes.Expr.Expr;
+
+import java.util.ArrayList;
+
+public class WriteOp extends Stat {
+
+    String name;
+    ArrayList<Expr> exprList;
+    public WriteOp(String name, ArrayList<Expr> exprList){ // TODO: come gestire il new line???
+        super(name);
+        exprList.forEach(super::add);
+
+        this.exprList = exprList;
+
+    }
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public ArrayList<Expr> getExprList() {
+        return exprList;
+    }
+
+    public void setExprList(ArrayList<Expr> exprList) {
+        this.exprList = exprList;
+    }
+
+    public void addExprList(ArrayList<Expr> exprList) {
+        exprList.forEach(super::add);
+        this.exprList.addAll(exprList);
+    }
+}

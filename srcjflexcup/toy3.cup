@@ -1,0 +1,202 @@
+import java.util.ArrayList;
+import Nodes.Decl.*;
+import Nodes.Expr.*;
+import Nodes.Stat.*;
+import Nodes.*;
+
+
+
+/* Simboli terminali (token dal lexer) */
+terminal PROGRAM, BEGIN, END, SEMI, COLON, INT, BOOL, DOUBLE, STRING, CHAR;
+terminal COMMA, DEF, LPAR, RPAR, LBRAC, RBRAC, IN, OUT, OUTNL, PIPE, ASSIGNDECL;
+terminal PLUS, MINUS, TIMES, DIV, ASSIGN, GT, GE, LT, LE, EQ, NE, NOT, AND, OR, REF;
+terminal TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO;
+
+/* Simboli non terminali
+non terminal Program, Decls, VarDecls, VarDecl, VarsOptInit, TypeOrConstant;
+non terminal Type, Constant, DefDecl, ParDecls, ParDecl, PVars, PVar;
+non terminal OptType, Body, Statements, Stat, Vars, Exprs, FunCall;
+non terminal Expr, ArithOp, BoolOp, RelOp;
+*/
+
+terminal String INT_CONST;
+terminal String DOUBLE_CONST;
+terminal String CHAR_CONST;
+terminal String STRING_CONST;
+terminal String ID;
+
+//TODO: chiedere se effettivamente va bene il tipo dei non terminali in base a come abbiamo creato le classi
+non terminal ProgramOp Program;
+non terminal DeclOp Decls;
+non terminal ArrayList<VarDeclOp> VarDecls;
+non terminal ArrayList<Stat> Statements;
+non terminal VarDeclOp VarDecl;
+non terminal ArrayList<VarsOptInitOp> VarsOptInit;
+non terminal TypeOrConstOp TypeOrConstant;
+non terminal Type Type;
+non terminal Const Constant;
+non terminal DefDeclOp DefDecl;
+non terminal ArrayList<ParDeclOp> ParDecls;
+non terminal ParDeclOp ParDecl;
+non terminal ArrayList<PVarOp> PVars;
+non terminal PVarOp PVar;
+non terminal Type OptType;
+non terminal BodyOp Body;
+non terminal Stat Stat;
+non terminal ArrayList<ID> Vars;
+non terminal ArrayList<Expr> Exprs;
+non terminal Expr Expr;
+non terminal Op ArithOp;
+non terminal Op BoolOp;
+non terminal Op RelOp;
+non terminal FunCallOp FunCall;
+
+precedence left PLUS, MINUS;
+precedence left TIMES, DIV;
+precedence left AND, OR;
+precedence left GT, GE, LT, LE, EQ, NE;
+precedence right NOT;
+precedence right MINUS; // Operatore unario
+
+/* Inizio del programma */
+Program ::= PROGRAM Decls:decl BEGIN VarDecls:varDecls Statements:statements END
+          {: BodyOp body = new BodyOp(varDecls, statements);
+             RESULT = new ProgramOp(decl, body);:};
+
+/* Dichiarazione */
+//TODO: Work in progress
+Decls ::= VarDecl:varDecl Decls:decls {: ArrayList<VarDeclOp> varDeclOps = new ArrayList<>(decls.getVarDeclOps());
+                                        varDeclOps.add(0,varDecl);
+                                        RESULT = new DeclOp(varDeclOps, decls.getDefDeclOps());:}
+          | DefDecl:defDecl Decls:decls {: ArrayList<DefDeclOp> defDeclOps = new ArrayList<>(decls.getDefDeclOps());
+                                            defDeclOps.add(0,defDecl);
+                                            RESULT = new DeclOp(decls.getVarDeclOps(), defDeclOps);:}
+          | /* epsilon */ {: RESULT = new DeclOp(new ArrayList<>(), new ArrayList<>());:};
+
+/* Dichiarazione di variabili */
+VarDecls ::= VarDecls:varDeclList VarDecl:varDecl {: RESULT = new ArrayList<VarDeclOp>();
+                                                    RESULT.add(0,varDecl);
+                                                    RESULT.addAll(0,varDeclList);:}
+           | /* epsilon */ {: RESULT = new ArrayList<VarDeclOp>(); :};
+
+//lista di varoptinit
+VarDecl ::= VarsOptInit:varsOptInitList COLON TypeOrConstant:typeOrCostant SEMI {: RESULT = new VarDeclOp(varsOptInitList, typeOrCostant); :};
+
+VarsOptInit ::= ID:id PIPE VarsOptInit:varsOptInit {: RESULT = new ArrayList<VarsOptInitOp>();
+                                                    RESULT.add(0,new VarsOptInitOp("singleDecl",new ID(id)));
+                                                    RESULT.addAll(varsOptInit);:}
+              | ID:id ASSIGNDECL Expr:expr PIPE VarsOptInit:varsOptInit {: RESULT = new ArrayList<VarsOptInitOp>();
+                                                                          RESULT.add(0,new VarsOptInitOp("declWithExpr",new ID(id),expr));
+                                                                          RESULT.addAll(varsOptInit);:}
+              | ID:id {: RESULT = new ArrayList<VarsOptInitOp>();
+                        RESULT.add(0,new VarsOptInitOp("singleDecl",new ID(id)));:}
+              | ID:id ASSIGNDECL Expr:expr {: RESULT = new ArrayList<VarsOptInitOp>();
+                                            RESULT.add(0,new VarsOptInitOp("declWithExpr",new ID(id),expr));:};
+
+/* Tipi e costanti */
+TypeOrConstant ::= Type:type {: RESULT = new TypeOrConstOp(type); :}
+                 | Constant:costant {: RESULT = new TypeOrConstOp(costant); :};
+
+Type ::= INT {: RESULT = new Type("INT", false); :}
+       | BOOL {: RESULT = new Type("BOOL", false); :}
+       | DOUBLE {: RESULT = new Type("DOUBLE", false); :}
+       | STRING {: RESULT = new Type("STRING", false); :}
+       | CHAR {: RESULT = new Type("CHAR", false); :} ;
+
+Constant ::= TRUE:value {: RESULT = new Const("TRUE", "true"); :}
+           | FALSE:value {: RESULT = new Const("FALSE", "false"); :}
+           | INT_CONST:value {: RESULT = new Const("INT_CONST", value); :}
+           | DOUBLE_CONST:value {: RESULT = new Const("DOUBLE_CONST",value); :}
+           | CHAR_CONST:value {: RESULT = new Const("CHAR_CONST", value); :}
+           | STRING_CONST:value {: RESULT = new Const("STRING_CONST", value); :} ;
+
+/* Dichiarazione di funzioni */
+//TODO: Problema quando togliamo il tipo di ritorno alla funzione
+//TODO: Problema quando non ci sono parametri alla funzione
+DefDecl ::= DEF ID:id LPAR ParDecls:parDecls RPAR OptType:optType Body:body {: RESULT = new DefDeclOp(new ID(id), parDecls, optType, body); :} //controllare defDeclOp e Type (può essere void)
+          | DEF ID:id LPAR RPAR OptType:optType Body:body {: RESULT = new DefDeclOp(new ID(id), new ArrayList<ParDeclOp>(), optType, body); :};
+
+ParDecls ::= ParDecl:parDecl SEMI ParDecls:parDecls {: RESULT = new ArrayList<ParDeclOp>();
+                                                    RESULT.add(0,parDecl);
+                                                    RESULT.addAll(parDecls); :}
+           | ParDecl:parDecl {: RESULT = new ArrayList<ParDeclOp>();
+                              RESULT.add(0,parDecl); :};
+
+ParDecl ::= PVars:pvarList COLON Type:type {: RESULT = new ParDeclOp(pvarList, type); :};
+
+PVars ::= PVar:pvar COMMA PVars:pvarList {: RESULT = new ArrayList<PVarOp>();
+                             RESULT.add(0,pvar);
+                             RESULT.addAll(pvarList); :}
+        | PVar:pvar {: RESULT = new ArrayList<PVarOp>();
+                  RESULT.add(0,pvar); :};
+
+PVar ::= ID:id {: RESULT =  new PVarOp(new ID(id),false); :}
+       | REF ID:id {: RESULT = new PVarOp(new ID(id),true);:};
+
+/* Corpo del programma */
+OptType ::= COLON Type:type {: RESULT = type; :}
+          | /* epsilon */ {: RESULT = new Type("Void", true);:}; //non so se è giusto (non credo)
+
+Body ::= LBRAC VarDecls:varDeclList Statements:statList RBRAC {: RESULT = new BodyOp(varDeclList, statList); :};
+
+/* Statements */
+Statements ::= Stat:stat Statements:statList {: RESULT = new ArrayList<Stat>();
+                                                RESULT.add(0,stat);
+                                                RESULT.addAll(statList); :}
+             | /* epsilon */ {: RESULT = new ArrayList<Stat>(); :}; //non so se è giusto, magari fare un costruttore vuoto per il tipo void delle funzioni
+
+Stat ::= Vars:vars IN SEMI {:RESULT = new ReadOp(vars);:}
+       | Exprs:exprList OUT SEMI {:RESULT = new WriteOp("Out",exprList);:}
+       | Exprs:exprList OUTNL SEMI {:RESULT = new WriteOp("OutNewLine",exprList);:}
+       | Vars:vars ASSIGN Exprs:exprList SEMI {: RESULT = new AssignOp(vars,exprList); :}  //il controllo che con un più ID non è possibile assegnare una funzione è fatto nell'analisi semantica
+       | FunCall:funCall SEMI {: FunCallOp tmp = funCall;
+                                RESULT = new FunCallOpStat(tmp.getId(),tmp.getParametri());
+                                :}
+       | IF LPAR Expr:expr RPAR THEN Body:body1 ELSE Body:body2 {: RESULT = new IfThenElseOp(expr,body1,body2); :}
+       | IF LPAR Expr:expr RPAR THEN Body:body1 {: RESULT = new IfThenOp(expr,body1); :}
+       | WHILE LPAR Expr:expr RPAR DO Body:body {: RESULT = new WhileOp(expr,body); :}
+       | RETURN Expr:expr SEMI {: RESULT = new ReturnOp(expr); :};
+
+/* Espressioni */
+Vars ::= ID:id PIPE Vars:vars {: RESULT = new ArrayList<ID>();
+                                RESULT.add(0,new ID(id));
+                                RESULT.addAll(vars); :}
+       | ID: id {: RESULT = new ArrayList<ID>();
+                   RESULT.add(0,new ID(id)); :};
+
+Exprs ::= Expr:expr1 COMMA Exprs:exprList {:RESULT = new ArrayList<Expr>();
+                                            RESULT.add(0,expr1);
+                                            RESULT.addAll(exprList);:}
+        | Expr:expr {: RESULT = new ArrayList<Expr>();
+                      RESULT.add(0,expr); :};
+
+FunCall ::= ID:value LPAR Exprs:exprList RPAR {: RESULT = new FunCallOp(new ID(value), exprList); :}
+          | ID:value LPAR RPAR {:RESULT = new FunCallOp(new ID(value),new ArrayList<Expr>()); :} ;
+
+Expr ::= Expr:expr1 ArithOp:arithOp Expr:expr2 {:RESULT = new ArithOp(arithOp, expr1, expr2); :}
+                | Expr:expr1 BoolOp:boolOp Expr:expr2 {: RESULT = new BoolOp(boolOp, expr1, expr2); :}
+                | Expr:expr1 RelOp:relop Expr:expr2 {: RESULT = new RelOp(relop, expr1, expr2); :}
+                | LPAR Expr:expr RPAR {: RESULT = expr; :}
+                | MINUS Expr:expr {: RESULT = new UnaryOp("MinusOp", expr); :}
+                | NOT Expr:expr {: RESULT = new UnaryOp("NotOp", expr); :}
+                | ID:value {: RESULT = new ID(value); :}
+                | FunCall:funCall {: FunCallOp tmp = funCall;
+                                     RESULT = new FunCallOpExpr(tmp.getId(),tmp.getParametri());
+                                    :}
+                | Constant:constant {: RESULT = constant; :} ;
+
+/* Operatori */
+ArithOp ::= PLUS {: RESULT = new Op("AddOp"); :}
+          | MINUS {: RESULT =  new Op("MinOp"); :}
+          | TIMES {: RESULT =  new Op("TimesOp"); :}
+          | DIV {: RESULT =  new Op("DivOp"); :} ;
+
+BoolOp ::= AND {: RESULT = new Op("AndOp");:}
+         | OR {: RESULT = new Op("OrOp"); :} ;
+
+RelOp ::= GT {: RESULT = new Op("GtOp"); :}
+        | GE {: RESULT = new Op("GeOp"); :}
+        | LT {: RESULT = new Op("LtOp"); :}
+        | LE {: RESULT = new Op("LeOp");:}
+        | EQ {: RESULT = new Op("EqOp"); :}
+        | NE {: RESULT = new Op("NeOp"); :} ;
