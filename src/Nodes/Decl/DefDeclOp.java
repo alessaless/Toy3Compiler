@@ -63,4 +63,15 @@ public class DefDeclOp extends DefaultMutableTreeNode {
     public void setBodyOp(BodyOp bodyOp) {
         this.bodyOp = bodyOp;
     }
+
+    public ArrayList<Type> getParametersTypes() {
+        return this.getParDeclOps().stream()
+                .map(ParDeclOp::getType)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
+    }
 }
