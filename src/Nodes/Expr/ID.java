@@ -1,6 +1,9 @@
 package Nodes.Expr;
 
-public class ID extends Expr {
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
+
+public class ID extends Expr implements NodeVisitor {
 
     String value;
     public ID(String value) {
@@ -14,5 +17,11 @@ public class ID extends Expr {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }

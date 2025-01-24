@@ -4,6 +4,8 @@ import Nodes.Type;
 
 import java.util.ArrayList;
 
+//in inTypeList tiene i tipi dei parametri di input OPPURE il tipo della variabile
+//in outTypeList tiene i tipi di ritorno di una funzione OPPURE null se è una variabile
 public class SymbolType {
     private ArrayList<Type> inTypeList = new ArrayList<>();
     private ArrayList<Type> outTypeList =  new ArrayList<>();

@@ -2,10 +2,13 @@ package Nodes.Stat;
 
 import Nodes.Expr.Expr;
 import Nodes.Expr.ID;
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
 
+import java.nio.file.FileVisitOption;
 import java.util.ArrayList;
 
-public class AssignOp extends Stat{
+public class AssignOp extends Stat implements NodeVisitor {
     ArrayList<ID> idList;
     ArrayList<Expr> exprList;
 
@@ -44,6 +47,11 @@ public class AssignOp extends Stat{
         exprList.forEach(super::add);
 
         this.exprList.addAll(exprList);
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 
 }

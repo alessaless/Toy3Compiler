@@ -1,4 +1,5 @@
 program
+a:int;
     def sommaIntera(a:int):int {
         return a + b;
     }

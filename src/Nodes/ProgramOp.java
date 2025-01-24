@@ -3,13 +3,17 @@ package Nodes;
 import Nodes.Decl.DeclOp;
 import Nodes.Decl.DefDeclOp;
 import Nodes.Decl.VarDeclOp;
+import SymbolTable.SymbolTable;
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
 
-public class ProgramOp extends DefaultMutableTreeNode {
+public class ProgramOp extends DefaultMutableTreeNode implements NodeVisitor {
     DeclOp declOp;
     BodyOp bodyOp;
+    SymbolTable symbolTable;
 
     public ProgramOp(DeclOp declOp, BodyOp bodyOp){
         super("ProgramOp");
@@ -34,5 +38,18 @@ public class ProgramOp extends DefaultMutableTreeNode {
 
     public void setBodyOp(BodyOp bodyOp) {
         this.bodyOp = bodyOp;
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
+
+    public void setSymbolTable(SymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }

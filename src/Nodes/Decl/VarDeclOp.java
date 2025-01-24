@@ -1,11 +1,14 @@
 package Nodes.Decl;
 
 import Nodes.TypeOrConstOp;
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
+import org.w3c.dom.Node;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
 
-public class VarDeclOp extends DefaultMutableTreeNode {
+public class VarDeclOp extends DefaultMutableTreeNode implements NodeVisitor {
     ArrayList<VarsOptInitOp> varsOptInitOpList;
     TypeOrConstOp typeOrConstOp;
 
@@ -32,5 +35,10 @@ public class VarDeclOp extends DefaultMutableTreeNode {
 
     public void setTypeOrConstOp(TypeOrConstOp typeOrConstOp) {
         this.typeOrConstOp = typeOrConstOp;
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }

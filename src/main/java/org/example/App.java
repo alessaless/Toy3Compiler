@@ -1,5 +1,8 @@
 package main.java.org.example;
 
+import Nodes.ProgramOp;
+import Visitors.NodeVisitor;
+import Visitors.ScopeVisitor;
 import main.java.org.example.Lexer;
 import main.java.org.example.parser;
 
@@ -35,6 +38,8 @@ public class App {
         while (!scanner.yyatEOF()){
             p.debug_parse();
         }
+
+        ((ProgramOp) root).accept(new ScopeVisitor());
     }
 
 }

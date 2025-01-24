@@ -2,13 +2,16 @@ package Nodes.Decl;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import Nodes.BodyOp;
 import Nodes.Expr.ID;
 import Nodes.Type;
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
 
 //Perchè abbiamo fatto cosi?
-public class DefDeclOp extends DefaultMutableTreeNode {
+public class DefDeclOp extends DefaultMutableTreeNode implements NodeVisitor {
     ID id;
     ArrayList<ParDeclOp> parDeclOps;
     Type type;

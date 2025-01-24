@@ -32,6 +32,14 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
         this.symbolRows = symbolRows;
     }
 
+    public SymbolTable getFather() {
+        return father;
+    }
+
+    public void setFather(SymbolTable father) {
+        this.father = father;
+    }
+
     //Controlla che la variabile non sia già stata dichiarata all'interno dello scope corrente
     public boolean probe(String name) {
         return this.symbolRows.stream().anyMatch(symbolRow -> symbolRow.getName().equals(name));
