@@ -2,8 +2,10 @@ package Nodes.Stat;
 
 import Nodes.BodyOp;
 import Nodes.Expr.Expr;
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
 
-public class WhileOp extends Stat{
+public class WhileOp extends Stat implements NodeVisitor {
     Expr condition;
     BodyOp body;
 
@@ -29,5 +31,10 @@ public class WhileOp extends Stat{
 
     public void setBody(BodyOp body) {
         this.body = body;
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }

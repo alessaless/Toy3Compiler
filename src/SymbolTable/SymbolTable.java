@@ -49,7 +49,7 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
         if(!probe(symbolRow.getName())){
             this.symbolRows.add(symbolRow);
         } else {
-            throw new Exception("Variable already declared");
+            throw new Error("Variable already declared");
         }
     }
 
@@ -59,10 +59,23 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
             if(this.father != null){
                 return this.father.lookUp(name);
             } else {
-                throw new Exception("Variable not declared");
+                throw new Error("Variable not declared");
             }
         } else {
             return this.symbolRows.stream().filter(symbolRow -> symbolRow.getName().equals(name)).findFirst().get();
+        }
+    }
+
+    //restituisce true se la variabile è stata dichiarata, false altrimenti
+    public boolean lookUpBoolean(String name){
+        if(!probe(name)){
+            if(this.father != null){
+                return this.father.lookUpBoolean(name);
+            } else {
+                return false;
+            }
+        } else {
+            return true;
         }
     }
 
