@@ -1,10 +1,15 @@
 program
 a:int;
+scelta:int;
     def sommaIntera(a:int):int {
+        vlahovic:int;
+        if(vlahovic == 1) then {
+                            allegri:int;
+        }
         return a + b;
     }
 
-    def sommaDouble(a:double; b:double):double {
+    def sommaDouble(a,c:double; b:int):double {
         return a + b;
     }
 
@@ -43,7 +48,9 @@ begin
     stampaMenuScelta();
     scelta <<;
     while(scelta <> 0) do {
+    prova := 5;
         if(scelta == 1) then {
+            cacca := 5;
             a := inputIntero();
             b := inputIntero();
             risultatointero := sommaIntera(a, b);
@@ -66,6 +73,8 @@ begin
             d := inputDouble();
             risultatodouble := sottrazioneDouble(c, d);
             risultatodouble !>>;
+        } else {
+            alessandro:int;
         }
         stampaMenuScelta();
         scelta << ;

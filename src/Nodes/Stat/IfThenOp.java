@@ -2,8 +2,10 @@ package Nodes.Stat;
 
 import Nodes.BodyOp;
 import Nodes.Expr.Expr;
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
 
-public class IfThenOp extends Stat{
+public class IfThenOp extends Stat implements NodeVisitor {
     Expr expr;
     BodyOp bodyOp;
 
@@ -30,5 +32,10 @@ public class IfThenOp extends Stat{
 
     public void setBodyOp(BodyOp bodyOp) {
         this.bodyOp = bodyOp;
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }

@@ -2,8 +2,10 @@ package Nodes.Stat;
 
 import Nodes.BodyOp;
 import Nodes.Expr.Expr;
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
 
-public class IfThenElseOp extends Stat{
+public class IfThenElseOp extends Stat implements NodeVisitor {
     BodyOp bodyIf;
     Expr condizione;
     BodyOp bodyElse;
@@ -41,5 +43,10 @@ public class IfThenElseOp extends Stat{
 
     public void setBodyElse(BodyOp bodyElse) {
         this.bodyElse = bodyElse;
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }

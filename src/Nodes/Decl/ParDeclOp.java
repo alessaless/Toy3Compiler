@@ -1,11 +1,13 @@
 package Nodes.Decl;
 
 import Nodes.Type;
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
 
-public class ParDeclOp extends DefaultMutableTreeNode {
+public class ParDeclOp extends DefaultMutableTreeNode implements NodeVisitor {
     ArrayList<PVarOp> pvarOps;
     Type type;
 
@@ -32,5 +34,10 @@ public class ParDeclOp extends DefaultMutableTreeNode {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }

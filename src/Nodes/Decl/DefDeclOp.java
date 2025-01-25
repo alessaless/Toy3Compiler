@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import Nodes.BodyOp;
 import Nodes.Expr.ID;
 import Nodes.Type;
+import SymbolTable.SymbolTable;
 import Visitors.NodeVisitor;
 import Visitors.Visitor;
 
@@ -16,6 +17,7 @@ public class DefDeclOp extends DefaultMutableTreeNode implements NodeVisitor {
     ArrayList<ParDeclOp> parDeclOps;
     Type type;
     BodyOp bodyOp;
+    SymbolTable symbolTable;
 
     public DefDeclOp(ID id, ArrayList<ParDeclOp> parDeclOps, Type type, BodyOp bodyOp) {
         this(id, parDeclOps, type, bodyOp, type.isVoid() ? "DefDeclOpWithoutType" : "DefDeclOpWithType");
@@ -71,6 +73,14 @@ public class DefDeclOp extends DefaultMutableTreeNode implements NodeVisitor {
         return this.getParDeclOps().stream()
                 .map(ParDeclOp::getType)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
+    }
+
+    public void setSymbolTable(SymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
     }
 
     @Override
