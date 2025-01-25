@@ -1,8 +1,12 @@
 program
 a:int;
 scelta:int;
+gonzalez=a+b:int;
+b=10:int;
     def sommaIntera(a:int):int {
         vlahovic:int;
+        locatelli := gonzalez;
+        yildiz := sommaDouble();
         if(vlahovic == 1) then {
                             allegri:int;
         }

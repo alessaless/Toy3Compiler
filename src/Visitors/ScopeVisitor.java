@@ -4,8 +4,7 @@ import Nodes.BodyOp;
 import Nodes.Decl.DefDeclOp;
 import Nodes.Decl.ParDeclOp;
 import Nodes.Decl.VarDeclOp;
-import Nodes.Expr.Expr;
-import Nodes.Expr.ID;
+import Nodes.Expr.*;
 import Nodes.ProgramOp;
 import Nodes.Stat.*;
 import Nodes.Type;
@@ -49,6 +48,12 @@ public class ScopeVisitor implements Visitor{
                 ArrayList<Type> varType = new ArrayList<>();
                 varType.add(t);
                 varDeclOp.getVarsOptInitOpList().forEach(decl -> {
+                    // effettuare l'accept dell'expr solo dopo che abbiamo aggiunto le row alla tabella
+                    /*
+                    if(decl.getExpr() != null){
+                        decl.getExpr().accept(this);
+                    }
+                    */
                     SymbolRow row = new SymbolRow(
                             decl.getId().getName(),
                             "Var",
@@ -109,7 +114,6 @@ public class ScopeVisitor implements Visitor{
         return null;
     }
 
-    //TODO:deve dare errore variabile non dichiarata nel return
     @Override
     public Object visit(DefDeclOp defDeclOp) {
         SymbolTable symbolTableFather = symbolTableLocal;
@@ -128,6 +132,9 @@ public class ScopeVisitor implements Visitor{
             ArrayList<Type> varType = new ArrayList<>();
             varType.add(t);
             varDeclOp.getVarsOptInitOpList().forEach(decl -> {
+                if(decl.getExpr() != null){
+                    decl.getExpr().accept(this);
+                }
                 try {
                     SymbolRow row = new SymbolRow(
                             decl.getId().getName(),
@@ -175,31 +182,121 @@ public class ScopeVisitor implements Visitor{
     }
 
     @Override
+    public Object visit(Op op) {
+        return null;
+    }
+
+    //TODO: capire in PROGRAMOP se assegnando ad una variabile non presente nel programma deve dare errore
+    //TODO:devo controllare che è assegnata dopo?
+    //TODO:controllare se assegno una variabile ad una funzione
+    @Override
+    public Object visit(ArithOp arithOp) {
+        if(arithOp.getValueL() instanceof ID){
+            if(!symbolTableLocal.lookUpBoolean(((ID) arithOp.getValueL()).getName())){
+                throw new Error("Variabile non dichiarata" + ((ID) arithOp.getValueL()).getName());
+            }
+        } else if(arithOp.getValueL() instanceof ArithOp){
+            arithOp.getValueL().accept(this);
+        }
+        if(arithOp.getValueR() instanceof ID) {
+            if (!symbolTableLocal.lookUpBoolean(((ID) arithOp.getValueR()).getName())) {
+                throw new Error("Variabile non dichiarata" + ((ID) arithOp.getValueR()).getName());
+            }
+        } else if (arithOp.getValueR() instanceof ArithOp){
+            arithOp.getValueR().accept(this);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(BoolOp boolOp) {
+        if(boolOp.getValueL() instanceof ID){
+            if(!symbolTableLocal.lookUpBoolean(((ID) boolOp.getValueL()).getName())){
+                throw new Error("Variabile non dichiarata" + ((ID) boolOp.getValueL()).getName());
+            }
+        } else if(boolOp.getValueL() instanceof BoolOp){
+            boolOp.getValueL().accept(this);
+        }
+        if(boolOp.getValueR() instanceof ID) {
+            if (!symbolTableLocal.lookUpBoolean(((ID) boolOp.getValueR()).getName())) {
+                throw new Error("Variabile non dichiarata" + ((ID) boolOp.getValueR()).getName());
+            }
+        } else if (boolOp.getValueR() instanceof BoolOp){
+            boolOp.getValueR().accept(this);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(RelOp relOp) {
+        if(relOp.getValueL() instanceof ID){
+            if(!symbolTableLocal.lookUpBoolean(((ID) relOp.getValueL()).getName())){
+                throw new Error("Variabile non dichiarata" + ((ID) relOp.getValueL()).getName());
+            }
+        } else if(relOp.getValueL() instanceof RelOp){
+            relOp.getValueL().accept(this);
+        }
+        if(relOp.getValueR() instanceof ID) {
+            if (!symbolTableLocal.lookUpBoolean(((ID) relOp.getValueR()).getName())) {
+                throw new Error("Variabile non dichiarata" + ((ID) relOp.getValueR()).getName());
+            }
+        } else if (relOp.getValueR() instanceof RelOp){
+            relOp.getValueR().accept(this);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(UnaryOp unaryOp) {
+        if(unaryOp.getValue() instanceof ID){
+            if(!symbolTableLocal.lookUpBoolean(((ID) unaryOp.getValue()).getName())){
+                throw new Error("Variabile non dichiarata" + ((ID) unaryOp.getValue()).getName());
+            }
+        } else if (unaryOp.getValue() instanceof UnaryOp){
+            unaryOp.getValue().accept(this);
+            }
+        return null;
+    }
+
+    @Override
+    public Object visit(ReturnOp returnOp) {
+        returnOp.getExpr().accept(this);
+        return null;
+    }
+
+    @Override
+    public Object visit(ReadOp readOp) {
+        readOp.getVariabili().forEach(id -> {
+            id.accept(this);
+        });
+        return null;
+    }
+
+    @Override
+    public Object visit(WriteOp writeOp) {
+        writeOp.getExprList().forEach(expr -> {
+            expr.accept(this);
+        });
+        return null;
+    }
+
+    @Override
     public Object visit(VarDeclOp varDeclOp) {
         return null;
     }
 
     @Override
     public Object visit(Stat stat) {
-        if(stat instanceof AssignOp){
-            System.out.println("\n\n\nSIAMO IN ASSIGNOP\n\n\n");
-            ((AssignOp) stat).accept(this);
-        } else if (stat instanceof IfThenElseOp) {
-            ((IfThenElseOp) stat).getBodyIf().accept(this);
-            ((IfThenElseOp) stat).getBodyElse().accept(this);
-        } else if (stat instanceof IfThenOp) {
-            ((IfThenOp) stat).getBodyOp().accept(this);
-        } else if (stat instanceof WhileOp) {
-            System.out.println("\n\n\nSIAMO IN WHILEOP\n\n\n");
-            ((WhileOp) stat).getBody().accept(this);
-        }
         return null;
     }
 
-    //Dobbiamo fare inferenza di tipo
+    //TODO:Dobbiamo fare inferenza di tipo
     @Override
     public Object visit(AssignOp assignOp) {
-        System.out.println("\n\n\nSIAMO IN ASSIGNOP 2\n\n\n");
+        assignOp.getExprList().forEach(expr -> {
+            expr.accept(this);
+        });
+
         assignOp.getIdList().forEach(id -> {
             if(!symbolTableLocal.lookUpBoolean(id.getName())){
                 SymbolRow row = new SymbolRow(
@@ -225,17 +322,23 @@ public class ScopeVisitor implements Visitor{
 
     @Override
     public Object visit(ID id) {
+        if(!symbolTableLocal.lookUpBoolean(id.getName())){
+            throw new Error("Variabile non dichiarata" + id.getName());
+        }
         return null;
     }
 
     @Override
     public Object visit(Expr expr) {
+        if(expr instanceof Op){
+            System.out.println("\n\n\nSIAMO IN OP\n\n\n");
+            ((Op) expr).accept(this);
+        }
         return null;
     }
 
     @Override
     public Object visit(WhileOp whileOp) {
-        System.out.println("\n\n\nSIAMO IN WHILEOP 2\n\n\n");
         /*
         SymbolTable symbolTableFather = symbolTableLocal;
         SymbolTable symbolTable = new SymbolTable(symbolTableLocal, "WhileOpSymbolTable", new ArrayList<SymbolRow>());
@@ -249,6 +352,7 @@ public class ScopeVisitor implements Visitor{
         //whileOp.getCondition().accept(this);
 
          */
+        whileOp.getCondition().accept(this);
         whileOp.getBody().accept(this);
 
         //symbolTableLocal = symbolTableFather;
@@ -257,12 +361,14 @@ public class ScopeVisitor implements Visitor{
 
     @Override
     public Object visit(IfThenOp ifThenOp) {
+        ifThenOp.getExpr().accept(this);
         ifThenOp.getBodyOp().accept(this);
         return null;
     }
 
     @Override
     public Object visit(IfThenElseOp ifThenElseOp) {
+        ifThenElseOp.getCondizione().accept(this);
         ifThenElseOp.getBodyIf().accept(this);
         ifThenElseOp.getBodyElse().accept(this);
         return null;
