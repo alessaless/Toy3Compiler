@@ -1,6 +1,9 @@
 package Nodes.Expr;
 
-public class UnaryOp extends Expr{
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
+
+public class UnaryOp extends Expr implements NodeVisitor {
     String name;
     Expr value;
 
@@ -28,5 +31,10 @@ public class UnaryOp extends Expr{
 
     public void setValue(Expr value) {
         this.value = value;
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }

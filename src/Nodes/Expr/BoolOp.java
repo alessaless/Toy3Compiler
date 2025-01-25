@@ -1,6 +1,9 @@
 package Nodes.Expr;
 
-public class BoolOp extends Op{
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
+
+public class BoolOp extends Op implements NodeVisitor {
     Expr valueL;
     Expr valueR;
 
@@ -28,5 +31,10 @@ public class BoolOp extends Op{
 
     public void setValueR(Expr valueR) {
         this.valueR = valueR;
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }

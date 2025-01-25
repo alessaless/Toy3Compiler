@@ -1,6 +1,9 @@
 package Nodes.Expr;
 
-public class ArithOp extends Op{
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
+
+public class ArithOp extends Op implements NodeVisitor {
     Expr valueL;
     Expr valueR;
 
@@ -28,6 +31,11 @@ public class ArithOp extends Op{
 
     public void setValueR(Expr valueR) {
         this.valueR = valueR;
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 
 }

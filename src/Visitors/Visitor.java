@@ -4,8 +4,7 @@ import Nodes.BodyOp;
 import Nodes.Decl.DefDeclOp;
 import Nodes.Decl.ParDeclOp;
 import Nodes.Decl.VarDeclOp;
-import Nodes.Expr.Expr;
-import Nodes.Expr.ID;
+import Nodes.Expr.*;
 import Nodes.ProgramOp;
 import Nodes.Stat.*;
 
@@ -22,4 +21,12 @@ public interface Visitor {
     Object visit(IfThenOp ifThenOp);
     Object visit(IfThenElseOp ifThenElseOp);
     Object visit(ParDeclOp parDeclOp);
+    Object visit(Op op);
+    Object visit(ArithOp arithOp);
+    Object visit(BoolOp boolOp);
+    Object visit(RelOp relOp);
+    Object visit(UnaryOp unaryOp);
+    Object visit(ReturnOp returnOp);
+    Object visit(ReadOp readOp);
+    Object visit(WriteOp writeOp);
 }
