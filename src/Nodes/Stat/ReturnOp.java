@@ -15,11 +15,11 @@ public class ReturnOp extends Stat implements NodeVisitor {
         this.expr = expr;
     }
 
-    public Expr getExprList() {
+    public Expr getExpr() {
         return expr;
     }
 
-    public void setExprList(Expr expr) {
+    public void setExpr(Expr expr) {
         this.expr = expr;
     }
 
