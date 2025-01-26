@@ -205,6 +205,17 @@ public class ScopeVisitor implements Visitor{
         } else if (arithOp.getValueR() instanceof ArithOp){
             arithOp.getValueR().accept(this);
         }
+
+        /*
+        String typeOp1 = "", typeOp2 = "";
+        if(arithOp.getValueL() instanceof Const){
+            typeOp1 = ((Const) arithOp.getValueL()).getValue();
+        }
+        if(arithOp.getValueR() instanceof Const){
+            typeOp2 = ((Const) arithOp.getValueR()).getValue();
+        }
+         */
+
         return null;
     }
 
@@ -279,7 +290,6 @@ public class ScopeVisitor implements Visitor{
         });
         return null;
     }
-
     @Override
     public Object visit(VarDeclOp varDeclOp) {
         return null;
@@ -287,6 +297,11 @@ public class ScopeVisitor implements Visitor{
 
     @Override
     public Object visit(Stat stat) {
+        return null;
+    }
+
+    @Override
+    public Object visit(Const constOp) {
         return null;
     }
 
@@ -312,11 +327,11 @@ public class ScopeVisitor implements Visitor{
             }
             // Process each ID
         });
+        return null;
+    }
 
-        assignOp.getExprList().forEach(expr -> {
-            // Process each Expr
-            expr.accept(this);
-        });
+    @Override
+    public Object visit(Expr expr) {
         return null;
     }
 
@@ -328,14 +343,6 @@ public class ScopeVisitor implements Visitor{
         return null;
     }
 
-    @Override
-    public Object visit(Expr expr) {
-        if(expr instanceof Op){
-            System.out.println("\n\n\nSIAMO IN OP\n\n\n");
-            ((Op) expr).accept(this);
-        }
-        return null;
-    }
 
     @Override
     public Object visit(WhileOp whileOp) {
@@ -374,7 +381,18 @@ public class ScopeVisitor implements Visitor{
         return null;
     }
 
-
-
+/*
+    private static String getConstantType(String str) {
+        if (str.matches("-?\\d+")) {
+            return "int";
+        } else if (str.matches("-?\\d*\\.\\d+")) {
+            return "double";
+        } else if (str.length() == 1) {
+            return "char";
+        } else {
+            return "String";
+        }
+    }
+*/
 }
 

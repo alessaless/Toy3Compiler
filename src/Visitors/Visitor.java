@@ -29,4 +29,5 @@ public interface Visitor {
     Object visit(ReturnOp returnOp);
     Object visit(ReadOp readOp);
     Object visit(WriteOp writeOp);
+    Object visit(Const constOp);
 }

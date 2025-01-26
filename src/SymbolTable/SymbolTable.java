@@ -2,6 +2,7 @@ package SymbolTable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 
 public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
     SymbolTable father;
@@ -77,6 +78,16 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
         } else {
             return true;
         }
+    }
+
+    //Restituisce il tipo di un dato id
+    public SymbolType returnTypeOfId(String name) {
+        Optional<SymbolRow> symbolRowOptional = this.getSymbolRows().stream().filter(symbolRow -> symbolRow.getName().equals(name)).findFirst();
+        if (symbolRowOptional.isPresent())
+            return symbolRowOptional.get().getType();
+        else if (this.father != null)
+            return this.father.returnTypeOfId(name);
+        throw new RuntimeException("L'id " + name + " non è stato dichiarato");
     }
 
 }

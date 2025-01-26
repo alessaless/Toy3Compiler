@@ -1,6 +1,9 @@
 package Nodes.Expr;
 
-public class Const extends Expr{
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
+
+public class Const extends Expr implements NodeVisitor {
     String name, value;
 
     public Const(String name, String value){
@@ -25,5 +28,10 @@ public class Const extends Expr{
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }
