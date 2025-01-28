@@ -180,4 +180,6 @@ public class OpTableCombinations {
                     )
             )
     );
+
+    //TODO: Gestire i tipi di ritorno di una funzione, i tipi di ritorno delle variabili singole, tutti in outTypeList
 }

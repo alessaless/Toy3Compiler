@@ -34,4 +34,18 @@ public class Const extends Expr implements NodeVisitor {
     public Object accept(Visitor visitor) {
         return visitor.visit(this);
     }
+
+    public static String getConstantType(String str) {
+        if (str.matches("-?\\d+")) {
+            return "INT";
+        } else if (str.matches("-?\\d*\\.\\d+")) {
+            return "DOUBLE";
+        } else if (str.length() == 1) {
+            return "CHAR";
+        } else if(str.equals("true") || str.equals("false")) {
+            return "BOOL";
+        } else {
+            return "STRING";
+        }
+    }
 }

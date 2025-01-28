@@ -30,4 +30,6 @@ public interface Visitor {
     Object visit(ReadOp readOp);
     Object visit(WriteOp writeOp);
     Object visit(Const constOp);
+    Object visit(FunCallOp funCallOp);
+    Object visit(FunCallOpExpr funCallOpExpr);
 }

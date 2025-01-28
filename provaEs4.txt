@@ -1,15 +1,5 @@
 program
-a:int;
-scelta:int;
-gonzalez=a+b:int;
-b=10:int;
-    def sommaIntera(a:int):int {
-        vlahovic:int;
-        locatelli := gonzalez;
-        yildiz := sommaDouble();
-        if(vlahovic == 1) then {
-                            allegri:int;
-        }
+    def sommaIntera(a:int; b:int):int {
         return a + b;
     }
 
@@ -20,7 +10,7 @@ b=10:int;
     def sottrazioneIntera(a:int; b:int):int {
         return a - b;
     }
-
+z:int;
     def sottrazioneDouble(a:double; b:double):double {
         return a - b;
     }
@@ -44,6 +34,8 @@ b=10:int;
         "Inserisci numero double:" !>>;
         a <<;
     }
+    a:double;
+    b:double;
 
 begin
     a | b | risultatointero: int;
@@ -54,7 +46,6 @@ begin
     while(scelta <> 0) do {
     prova := 5;
         if(scelta == 1) then {
-            cacca := 5;
             a := inputIntero();
             b := inputIntero();
             risultatointero := sommaIntera(a, b);

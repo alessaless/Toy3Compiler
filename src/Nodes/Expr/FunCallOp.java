@@ -1,11 +1,13 @@
 package Nodes.Expr;
 
 import Nodes.Stat.Stat;
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
 
-public class FunCallOp extends DefaultMutableTreeNode {
+public class FunCallOp extends DefaultMutableTreeNode implements NodeVisitor {
 
     ID id;
     ArrayList<Expr> parametri;
@@ -37,5 +39,10 @@ public class FunCallOp extends DefaultMutableTreeNode {
     public void addExprList(ArrayList<Expr> parametri) {
         parametri.forEach(super::add);
         this.parametri.addAll(parametri);
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }

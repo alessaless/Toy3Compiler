@@ -48,16 +48,10 @@ public class ScopeVisitor implements Visitor{
                 ArrayList<Type> varType = new ArrayList<>();
                 varType.add(t);
                 varDeclOp.getVarsOptInitOpList().forEach(decl -> {
-                    // effettuare l'accept dell'expr solo dopo che abbiamo aggiunto le row alla tabella
-                    /*
-                    if(decl.getExpr() != null){
-                        decl.getExpr().accept(this);
-                    }
-                    */
                     SymbolRow row = new SymbolRow(
                             decl.getId().getName(),
                             "Var",
-                            new SymbolType(varType, null),
+                            new SymbolType(null, varType),
                             "");
                     try {
                         symbolTable.addID(row);
@@ -94,7 +88,7 @@ public class ScopeVisitor implements Visitor{
                         SymbolRow row = new SymbolRow(
                                 decl.getId().getName(),
                                 "Var",
-                                new SymbolType(varType, null),
+                                new SymbolType(null, varType),
                                 "");
                         try {
                             symbolTable.addID(row);
@@ -139,7 +133,7 @@ public class ScopeVisitor implements Visitor{
                     SymbolRow row = new SymbolRow(
                             decl.getId().getName(),
                             "Var",
-                            new SymbolType(varType, null),
+                            new SymbolType(null, varType),
                             "");
                     try {
                         symbolTable.addID(row);
@@ -167,7 +161,7 @@ public class ScopeVisitor implements Visitor{
                 SymbolRow row = new SymbolRow(
                         pVarOp.getId().getName(),
                         "Var",
-                        new SymbolType(type, null),
+                        new SymbolType(null, type),
                         "");
                 try {
                     symbolTableLocal.addID(row);
@@ -186,9 +180,6 @@ public class ScopeVisitor implements Visitor{
         return null;
     }
 
-    //TODO: capire in PROGRAMOP se assegnando ad una variabile non presente nel programma deve dare errore
-    //TODO:devo controllare che è assegnata dopo?
-    //TODO:controllare se assegno una variabile ad una funzione
     @Override
     public Object visit(ArithOp arithOp) {
         if(arithOp.getValueL() instanceof ID){
@@ -317,7 +308,7 @@ public class ScopeVisitor implements Visitor{
                 SymbolRow row = new SymbolRow(
                         id.getName(),
                         "Var",
-                        new SymbolType(new ArrayList<>(), null),
+                        new SymbolType(null, new ArrayList<>(List.of(new Type(t.get(i).getName(), t.get(i).isVoid())))),
                         "");
                 try {
                     symbolTableLocal.addID(row);
@@ -380,19 +371,5 @@ public class ScopeVisitor implements Visitor{
         ifThenElseOp.getBodyElse().accept(this);
         return null;
     }
-
-/*
-    private static String getConstantType(String str) {
-        if (str.matches("-?\\d+")) {
-            return "int";
-        } else if (str.matches("-?\\d*\\.\\d+")) {
-            return "double";
-        } else if (str.length() == 1) {
-            return "char";
-        } else {
-            return "String";
-        }
-    }
-*/
 }
 

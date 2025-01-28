@@ -1,8 +1,11 @@
 package Nodes.Expr;
 
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
+
 import java.util.ArrayList;
 
-public class FunCallOpExpr extends Expr{
+public class FunCallOpExpr extends Expr implements NodeVisitor {
     ID id;
     ArrayList<Expr> parametri;
     public FunCallOpExpr(ID id, ArrayList<Expr> parametri) {
@@ -33,5 +36,10 @@ public class FunCallOpExpr extends Expr{
     public void addExprList(ArrayList<Expr> parametri) {
         parametri.forEach(super::add);
         this.parametri.addAll(parametri);
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }
