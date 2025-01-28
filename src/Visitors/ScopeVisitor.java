@@ -345,23 +345,8 @@ public class ScopeVisitor implements Visitor{
 
     @Override
     public Object visit(WhileOp whileOp) {
-        /*
-        SymbolTable symbolTableFather = symbolTableLocal;
-        SymbolTable symbolTable = new SymbolTable(symbolTableLocal, "WhileOpSymbolTable", new ArrayList<SymbolRow>());
-
-        if (whileOp.getSymbolTable() == null) {
-            whileOp.setSymbolTable(symbolTable);
-        }
-
-        symbolTableLocal = whileOp.getSymbolTable();
-
-        //whileOp.getCondition().accept(this);
-
-         */
         whileOp.getCondition().accept(this);
         whileOp.getBody().accept(this);
-
-        //symbolTableLocal = symbolTableFather;
         return null;
     }
 

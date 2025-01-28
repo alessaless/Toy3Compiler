@@ -1,11 +1,24 @@
 package Visitors.OpTable;
 
 import Nodes.Type;
+import SymbolTable.SymbolType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class OpTableCombinations {
+
+    public enum EnumOpTable {
+        UMINUSOP,
+        NOT,
+        ARITHOP,
+        CONCATOP,
+        LOGICOP,
+        RELATIONALOP,
+        COMPAREOP,
+        DIVOP
+    }
+
     // operatori unari
     private static final OpTable UMINUSOP = new OpTable(
             "Uminus",
@@ -182,4 +195,34 @@ public class OpTableCombinations {
     );
 
     //TODO: Gestire i tipi di ritorno di una funzione, i tipi di ritorno delle variabili singole, tutti in outTypeList
+    public static SymbolType checkCombination(ArrayList<SymbolType> symbolTypeList, EnumOpTable enumOpTable) {
+        try {
+            //Prendo l'oggetto dato l'enum fornito in input
+            OpTable opTable = (OpTable) OpTableCombinations.class.getDeclaredField(enumOpTable.name()).get(OpTableCombinations.class);
+            //Controllo il match dei tipi forniti con quelli presenti in tabella
+            for (OpRow opRow : opTable.getOpRowsList()) {
+                boolean flag = true;
+                //Controllo che i tipi forniti siano compatibili con quelli presenti in tabella
+                //Inserisco all'interno di Iterator tutti i tipi di ritorno presenti in tabella
+                Iterator<Type> itType = symbolTypeList.stream().flatMap(symbolType -> symbolType.getOutTypeList().stream()).iterator();
+                Iterator<Type> itTypeTable = opRow.getOperandi().iterator();
+
+                while (itType.hasNext() && itTypeTable.hasNext())
+                    if (!itType.next().getName().equals(itTypeTable.next().getName())) {
+                        flag = false;
+                    }
+
+                if (itType.hasNext() || itTypeTable.hasNext())
+                    throw new RuntimeException("Utilizzati più operandi di quelli consentiti");
+
+                //Restituisce il tipo fornito dal match
+                if (flag) {
+                    return new SymbolType(new ArrayList<>(List.of(opRow.getRisultato())));
+                }
+            }
+            throw new RuntimeException("I tipi "+symbolTypeList.stream().flatMap(symbolType -> symbolType.getOutTypeList().stream()).map(Type::getName).toList() + " non sono supportati");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
