@@ -13,6 +13,7 @@ import SymbolTable.SymbolRow;
 import SymbolTable.SymbolType;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ScopeVisitor implements Visitor{
     static SymbolTable symbolTableLocal;
@@ -196,17 +197,6 @@ public class ScopeVisitor implements Visitor{
         } else if (arithOp.getValueR() instanceof ArithOp){
             arithOp.getValueR().accept(this);
         }
-
-        /*
-        String typeOp1 = "", typeOp2 = "";
-        if(arithOp.getValueL() instanceof Const){
-            typeOp1 = ((Const) arithOp.getValueL()).getValue();
-        }
-        if(arithOp.getValueR() instanceof Const){
-            typeOp2 = ((Const) arithOp.getValueR()).getValue();
-        }
-         */
-
         return null;
     }
 
@@ -293,16 +283,34 @@ public class ScopeVisitor implements Visitor{
 
     @Override
     public Object visit(Const constOp) {
-        return null;
+        return new Type(Const.getConstantType(constOp.getValue()), false);
+    }
+
+    @Override
+    public Object visit(FunCallOp funCallOp) {
+        if(!symbolTableLocal.lookUpBoolean(funCallOp.getId().getName())){
+            throw new Error("Funzione non dichiarata" + funCallOp.getId().getName());
+        }
+        return symbolTableLocal.returnTypeOfId(funCallOp.getId().getName()).getOutTypeList().get(0);
+    }
+
+    @Override
+    public Object visit(FunCallOpExpr funCallOpExpr) {
+        if(!symbolTableLocal.lookUpBoolean(funCallOpExpr.getId().getName())){
+            throw new Error("Funzione non dichiarata" + funCallOpExpr.getId().getName());
+        }
+        return symbolTableLocal.returnTypeOfId(funCallOpExpr.getId().getName()).getOutTypeList().get(0);
     }
 
     //TODO:Dobbiamo fare inferenza di tipo
     @Override
     public Object visit(AssignOp assignOp) {
+        ArrayList<Type> t = new ArrayList<>();
         assignOp.getExprList().forEach(expr -> {
-            expr.accept(this);
+            t.add((Type) expr.accept(this));
+            System.out.println("\nSTAMPO TYPE "+t);
         });
-
+        int i = 0;
         assignOp.getIdList().forEach(id -> {
             if(!symbolTableLocal.lookUpBoolean(id.getName())){
                 SymbolRow row = new SymbolRow(
@@ -331,7 +339,7 @@ public class ScopeVisitor implements Visitor{
         if(!symbolTableLocal.lookUpBoolean(id.getName())){
             throw new Error("Variabile non dichiarata" + id.getName());
         }
-        return null;
+        return symbolTableLocal.returnTypeOfId(id.getName()).getOutTypeList().get(0);
     }
 
 
