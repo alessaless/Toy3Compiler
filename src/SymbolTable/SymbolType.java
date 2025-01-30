@@ -8,15 +8,15 @@ import java.util.ArrayList;
 //in outTypeList tiene i tipi di ritorno di una funzione OPPURE null se è una variabile
 public class SymbolType {
     private ArrayList<Type> inTypeList = new ArrayList<>();
-    private ArrayList<Type> outTypeList =  new ArrayList<>();
+    private Type outType ;
 
 
-    public SymbolType(ArrayList<Type> inTypeList, ArrayList<Type> outTypeList) {
+    public SymbolType(ArrayList<Type> inTypeList, Type outType) {
         this.inTypeList = inTypeList;
-        this.outTypeList = outTypeList;
+        this.outType = outType;
     }
-    public SymbolType( ArrayList<Type> outTypeList) {
-        this.outTypeList = outTypeList;
+    public SymbolType(Type outType) {
+        this.outType = outType;
     }
 
     public ArrayList<Type> getInTypeList() {
@@ -31,18 +31,16 @@ public class SymbolType {
         this.inTypeList.add(type);
     }
 
-    public ArrayList<Type> getOutTypeList() {
-        return outTypeList;
+    public Type getOutType() {
+        return outType;
     }
 
-    public void setOutTypeList(ArrayList<Type> outTypeList) {
-        this.outTypeList = outTypeList;
+    public void setOutType(Type outType) {
+        this.outType = outType;
     }
+
     public void addOutType(Type type){
-        this.outTypeList.add(type);
-    }
-    public void addOutTypeList(ArrayList<Type> typeList){
-        this.outTypeList.addAll(typeList);
+        this.outType = type;
     }
 
 }

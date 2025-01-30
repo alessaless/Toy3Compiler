@@ -31,7 +31,7 @@ public class ScopeVisitor implements Visitor{
                 outTypeList.add(decl.getType());
 
                 SymbolRow row = new SymbolRow(
-                        decl.getId().getName(),
+                        decl.getId().getValue(),
                         "Funz",
                         new SymbolType(decl.getParametersTypes(), outTypeList),
                         "");
@@ -50,7 +50,7 @@ public class ScopeVisitor implements Visitor{
                 varType.add(t);
                 varDeclOp.getVarsOptInitOpList().forEach(decl -> {
                     SymbolRow row = new SymbolRow(
-                            decl.getId().getName(),
+                            decl.getId().getValue(),
                             "Var",
                             new SymbolType(null, varType),
                             "");
@@ -87,7 +87,7 @@ public class ScopeVisitor implements Visitor{
                 varDeclOp.getVarsOptInitOpList().forEach(decl -> {
                     try {
                         SymbolRow row = new SymbolRow(
-                                decl.getId().getName(),
+                                decl.getId().getValue(),
                                 "Var",
                                 new SymbolType(null, varType),
                                 "");
@@ -132,7 +132,7 @@ public class ScopeVisitor implements Visitor{
                 }
                 try {
                     SymbolRow row = new SymbolRow(
-                            decl.getId().getName(),
+                            decl.getId().getValue(),
                             "Var",
                             new SymbolType(null, varType),
                             "");
@@ -160,7 +160,7 @@ public class ScopeVisitor implements Visitor{
         parDeclOp.getPvarOps().forEach(pVarOp -> {
             try {
                 SymbolRow row = new SymbolRow(
-                        pVarOp.getId().getName(),
+                        pVarOp.getId().getValue(),
                         "Var",
                         new SymbolType(null, type),
                         "");
@@ -184,8 +184,8 @@ public class ScopeVisitor implements Visitor{
     @Override
     public Object visit(ArithOp arithOp) {
         if(arithOp.getValueL() instanceof ID){
-            if(!symbolTableLocal.lookUpBoolean(((ID) arithOp.getValueL()).getName())){
-                throw new Error("Variabile non dichiarata" + ((ID) arithOp.getValueL()).getName());
+            if(!symbolTableLocal.lookUpBoolean(((ID) arithOp.getValueL()).getValue())){
+                throw new Error("Variabile non dichiarata" + ((ID) arithOp.getValueL()).getValue());
             }
         } else if(arithOp.getValueL() instanceof ArithOp){
             arithOp.getValueL().accept(this);
@@ -288,16 +288,16 @@ public class ScopeVisitor implements Visitor{
 
     @Override
     public Object visit(FunCallOp funCallOp) {
-        if(!symbolTableLocal.lookUpBoolean(funCallOp.getId().getName())){
-            throw new Error("Funzione non dichiarata" + funCallOp.getId().getName());
+        if(!symbolTableLocal.lookUpBoolean(funCallOp.getId().getValue())){
+            throw new Error("Funzione non dichiarata" + funCallOp.getId().getValue());
         }
         return symbolTableLocal.returnTypeOfId(funCallOp.getId().getName()).getOutTypeList().get(0);
     }
 
     @Override
     public Object visit(FunCallOpExpr funCallOpExpr) {
-        if(!symbolTableLocal.lookUpBoolean(funCallOpExpr.getId().getName())){
-            throw new Error("Funzione non dichiarata" + funCallOpExpr.getId().getName());
+        if(!symbolTableLocal.lookUpBoolean(funCallOpExpr.getId().getValue())){
+            throw new Error("Funzione non dichiarata" + funCallOpExpr.getId().getValue());
         }
         return symbolTableLocal.returnTypeOfId(funCallOpExpr.getId().getName()).getOutTypeList().get(0);
     }
@@ -305,18 +305,13 @@ public class ScopeVisitor implements Visitor{
     //TODO:Dobbiamo fare inferenza di tipo
     @Override
     public Object visit(AssignOp assignOp) {
-        ArrayList<Type> t = new ArrayList<>();
-        assignOp.getExprList().forEach(expr -> {
-            t.add((Type) expr.accept(this));
-            System.out.println("\nSTAMPO TYPE "+t);
-        });
-        int i = 0;
         assignOp.getIdList().forEach(id -> {
-            if(!symbolTableLocal.lookUpBoolean(id.getName())){
+            System.out.println("ID: "+id.getValue());
+            if(!symbolTableLocal.lookUpBoolean(id.getValue())){
                 SymbolRow row = new SymbolRow(
-                        id.getName(),
+                        id.getValue(),
                         "Var",
-                        new SymbolType(null, new ArrayList<>(List.of(new Type(t.get(i).getName(), t.get(i).isVoid())))),
+                        new SymbolType(null, null),
                         "");
                 try {
                     symbolTableLocal.addID(row);
@@ -336,8 +331,8 @@ public class ScopeVisitor implements Visitor{
 
     @Override
     public Object visit(ID id) {
-        if(!symbolTableLocal.lookUpBoolean(id.getName())){
-            throw new Error("Variabile non dichiarata" + id.getName());
+        if(!symbolTableLocal.lookUpBoolean(id.getValue())){
+            throw new Error("Variabile non dichiarata" + id.getValue());
         }
         return symbolTableLocal.returnTypeOfId(id.getName()).getOutTypeList().get(0);
     }

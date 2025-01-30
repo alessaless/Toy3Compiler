@@ -3,6 +3,7 @@ package main.java.org.example;
 import Nodes.ProgramOp;
 import Visitors.NodeVisitor;
 import Visitors.ScopeVisitor;
+import Visitors.TypeVisitor;
 import main.java.org.example.Lexer;
 import main.java.org.example.parser;
 
@@ -40,6 +41,7 @@ public class App {
         }
 
         ((ProgramOp) root).accept(new ScopeVisitor());
+        //((ProgramOp) root).accept(new TypeVisitor());
     }
 
 }

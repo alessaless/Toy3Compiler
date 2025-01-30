@@ -50,7 +50,11 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
         if(!probe(symbolRow.getName())){
             this.symbolRows.add(symbolRow);
         } else {
-            throw new Error("Variable already declared");
+            if(lookUp(symbolRow.getName()).getKind().equals(symbolRow.getKind())){
+                throw new Error("Variable already declared");
+            } else {
+                this.symbolRows.add(symbolRow);
+            }
         }
     }
 
@@ -90,4 +94,13 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
         throw new RuntimeException("L'id " + name + " non è stato dichiarato");
     }
 
+    public void addTypeToId(String name, SymbolType symbolType) {
+        Optional<SymbolRow> symbolRowOptional = this.getSymbolRows().stream().filter(symbolRow -> symbolRow.getName().equals(name)).findFirst();
+        if (symbolRowOptional.isPresent())
+            symbolRowOptional.get().setType(symbolType);
+        else if (this.father != null)
+            this.father.addTypeToId(name, symbolType);
+        else
+            throw new RuntimeException("L'id " + name + " non è stato dichiarato pt2");
+    }
 }
