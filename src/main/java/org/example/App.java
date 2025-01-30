@@ -21,7 +21,7 @@ import java.io.*;
 public class App {
     public static void main (String[] args) throws Exception {
         JTree tree;
-        String filePath = "provaEs4.txt";
+        String filePath = "provaType.txt";
         FileInputStream stream = new FileInputStream(filePath);
         Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         Lexer scanner = new Lexer(reader);
@@ -41,7 +41,7 @@ public class App {
         }
 
         ((ProgramOp) root).accept(new ScopeVisitor());
-        //((ProgramOp) root).accept(new TypeVisitor());
+        ((ProgramOp) root).accept(new TypeVisitor());
     }
 
 }

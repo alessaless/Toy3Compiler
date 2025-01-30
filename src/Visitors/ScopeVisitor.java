@@ -43,24 +43,11 @@ public class ScopeVisitor implements Visitor{
 
         if(programOp.getDeclOp().getVarDeclOps() != null) {
             programOp.getDeclOp().getVarDeclOps().forEach(varDeclOp -> {
-                Type t = varDeclOp.getTypeOrConstOp().getType();
-                varDeclOp.getVarsOptInitOpList().forEach(decl -> {
-                    SymbolRow row = new SymbolRow(
-                            decl.getId().getValue(),
-                            "Var",
-                            new SymbolType(null, t),
-                            "");
-                    try {
-                        symbolTable.addID(row);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                varDeclOp.accept(this);
             });
         }
 
         programOp.getDeclOp().getDefDeclOps().forEach(defDeclOp -> defDeclOp.accept(this));
-        programOp.getDeclOp().getVarDeclOps().forEach(varDeclOp -> varDeclOp.accept(this));
         programOp.getBodyOp().accept(this);
         return null;
     }
@@ -80,7 +67,6 @@ public class ScopeVisitor implements Visitor{
             });
         }
 
-        bodyOp.getVarDeclOps().forEach(varDeclOp -> varDeclOp.accept(this));
         bodyOp.getStatOps().forEach(stat -> stat.accept(this));
         symbolTableLocal = symbolTableFather;
         return null;
@@ -131,7 +117,10 @@ public class ScopeVisitor implements Visitor{
     @Override
     public Object visit(ParDeclOp parDeclOp) {
         parDeclOp.getPvarOps().forEach(pVarOp -> {
+            System.out.println("STAMPA "+pVarOp.isRef());
             try {
+                // in caso un parametro sia passato per riferimeto aggiungo la stringa "Ref" al campo properties
+                String isRef = pVarOp.isRef() ? "Ref" : "";
                 SymbolRow row = new SymbolRow(
                         pVarOp.getId().getValue(),
                         "Var",
@@ -303,7 +292,6 @@ public class ScopeVisitor implements Visitor{
         return symbolTableLocal.returnTypeOfId(funCallOpExpr.getId().getValue()).getOutType();
     }
 
-    //TODO:Dobbiamo fare inferenza di tipo
     @Override
     public Object visit(AssignOp assignOp) {
         assignOp.getIdList().forEach(id -> {

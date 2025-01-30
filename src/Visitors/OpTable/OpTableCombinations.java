@@ -10,19 +10,18 @@ import java.util.List;
 public class OpTableCombinations {
 
     public enum EnumOpTable {
-        UMINUSOP,
-        NOT,
+        UNARYOP,
         ARITHOP,
         CONCATOP,
         LOGICOP,
         RELATIONALOP,
-        COMPAREOP,
+        BOOLOP,
         DIVOP
     }
 
     // operatori unari
-    private static final OpTable UMINUSOP = new OpTable(
-            "Uminus",
+    private static final OpTable UNARYOP = new OpTable(
+            "UnaryOp",
             new ArrayList<>(
                     List.of(
                             new OpRow(
@@ -143,8 +142,8 @@ public class OpTableCombinations {
             )
     );
 
-    private static final OpTable COMPAREOP = new OpTable(
-            "CompareOp",
+    private static final OpTable BOOLOP = new OpTable(
+            "BoolOp",
             new ArrayList<>(
                     List.of(
                             new OpRow(
@@ -187,8 +186,8 @@ public class OpTableCombinations {
             )
     );
 
-    //TODO: Gestire i tipi di ritorno di una funzione, i tipi di ritorno delle variabili singole, tutti in outTypeList
     public static SymbolType checkCombination(ArrayList<SymbolType> symbolTypeList, EnumOpTable enumOpTable) {
+        System.out.println("Stampa Tipi Size "+symbolTypeList.size());
         try {
             //Prendo l'oggetto dato l'enum fornito in input
             OpTable opTable = (OpTable) OpTableCombinations.class.getDeclaredField(enumOpTable.name()).get(OpTableCombinations.class);
