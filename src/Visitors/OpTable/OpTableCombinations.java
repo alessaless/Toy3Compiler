@@ -26,24 +26,16 @@ public class OpTableCombinations {
             new ArrayList<>(
                     List.of(
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("int", false))),
-                                    new Type("int", false)
+                                    new ArrayList<>(List.of(new Type("INT", false))),
+                                    new Type("INT", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("double", false))),
-                                    new Type("double", false)
-                            )
-                    )
-            )
-    );
-
-    private static final OpTable NOT = new OpTable(
-            "Not",
-            new ArrayList<>(
-                    List.of(
+                                    new ArrayList<>(List.of(new Type("DOUBLE", false))),
+                                    new Type("DOUBLE", false)
+                            ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("bool", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("BOOL", false))),
+                                    new Type("BOOL", false)
                             )
                     )
             )
@@ -56,24 +48,24 @@ public class OpTableCombinations {
             new ArrayList<>(
                     List.of(
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("int", false), new Type("int", false))),
-                                    new Type("int", false)
+                                    new ArrayList<>(List.of(new Type("INT", false), new Type("INT", false))),
+                                    new Type("INT", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("double", false), new Type("double", false))),
-                                    new Type("double", false)
+                                    new ArrayList<>(List.of(new Type("DOUBLE", false), new Type("DOUBLE", false))),
+                                    new Type("DOUBLE", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("string", false), new Type("string", false))),
-                                    new Type("string", false)
+                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("STRING", false))),
+                                    new Type("STRING", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("int", false), new Type("double", false))),
-                                    new Type("double", false)
+                                    new ArrayList<>(List.of(new Type("INT", false), new Type("DOUBLE", false))),
+                                    new Type("DOUBLE", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("double", false), new Type("int", false))),
-                                    new Type("double", false)
+                                    new ArrayList<>(List.of(new Type("DOUBLE", false), new Type("INT", false))),
+                                    new Type("DOUBLE", false)
                             )
                     )
             )
@@ -84,32 +76,32 @@ public class OpTableCombinations {
             new ArrayList<>(
                     List.of(
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("string", false), new Type("string", false))),
-                                    new Type("string", false)
+                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("STRING", false))),
+                                    new Type("STRING", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("string", false), new Type("int", false))),
-                                    new Type("string", false)
+                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("INT", false))),
+                                    new Type("STRING", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("int", false), new Type("string", false))),
-                                    new Type("string", false)
+                                    new ArrayList<>(List.of(new Type("INT", false), new Type("STRING", false))),
+                                    new Type("STRING", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("string", false), new Type("double", false))),
-                                    new Type("string", false)
+                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("DOUBLE", false))),
+                                    new Type("STRING", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("double", false), new Type("string", false))),
-                                    new Type("string", false)
+                                    new ArrayList<>(List.of(new Type("DOUBLE", false), new Type("STRING", false))),
+                                    new Type("STRING", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("string", false), new Type("bool", false))),
-                                    new Type("string", false)
+                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("BOOL", false))),
+                                    new Type("STRING", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("bool", false), new Type("string", false))),
-                                    new Type("string", false)
+                                    new ArrayList<>(List.of(new Type("BOOL", false), new Type("STRING", false))),
+                                    new Type("STRING", false)
                             )
                     )
             )
@@ -120,8 +112,8 @@ public class OpTableCombinations {
             new ArrayList<>(
                     List.of(
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("bool", false), new Type("bool", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("BOOL", false), new Type("BOOL", false))),
+                                    new Type("BOOL", false)
                             )
                     )
             )
@@ -132,20 +124,20 @@ public class OpTableCombinations {
             new ArrayList<>(
                     List.of(
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("int", false), new Type("int", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("INT", false), new Type("INT", false))),
+                                    new Type("BOOL", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("double", false), new Type("double", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("DOUBLE", false), new Type("DOUBLE", false))),
+                                    new Type("BOOL", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("int", false), new Type("double", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("INT", false), new Type("DOUBLE", false))),
+                                    new Type("BOOL", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("double", false), new Type("int", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("DOUBLE", false), new Type("INT", false))),
+                                    new Type("BOOL", false)
                             )
                     )
             )
@@ -156,28 +148,28 @@ public class OpTableCombinations {
             new ArrayList<>(
                     List.of(
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("int", false), new Type("int", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("INT", false), new Type("INT", false))),
+                                    new Type("BOOL", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("double", false), new Type("double", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("DOUBLE", false), new Type("DOUBLE", false))),
+                                    new Type("BOOL", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("int", false), new Type("double", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("INT", false), new Type("DOUBLE", false))),
+                                    new Type("BOOL", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("double", false), new Type("int", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("DOUBLE", false), new Type("INT", false))),
+                                    new Type("BOOL", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("bool", false), new Type("bool", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("BOOL", false), new Type("BOOL", false))),
+                                    new Type("BOOL", false)
                             ),
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("string", false), new Type("string", false))),
-                                    new Type("bool", false)
+                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("STRING", false))),
+                                    new Type("BOOL", false)
                             )
                     )
             )
@@ -188,8 +180,8 @@ public class OpTableCombinations {
             new ArrayList<>(
                     List.of(
                             new OpRow(
-                                    new ArrayList<>(List.of(new Type("int", false), new Type("int", false))),
-                                    new Type("double", false)
+                                    new ArrayList<>(List.of(new Type("INT", false), new Type("INT", false))),
+                                    new Type("DOUBLE", false)
                             )
                     )
             )
@@ -205,7 +197,7 @@ public class OpTableCombinations {
                 boolean flag = true;
                 //Controllo che i tipi forniti siano compatibili con quelli presenti in tabella
                 //Inserisco all'interno di Iterator tutti i tipi di ritorno presenti in tabella
-                Iterator<Type> itType = symbolTypeList.stream().flatMap(symbolType -> symbolType.getOutTypeList().stream()).iterator();
+                Iterator<Type> itType = symbolTypeList.stream().map(SymbolType::getOutType).iterator();
                 Iterator<Type> itTypeTable = opRow.getOperandi().iterator();
 
                 while (itType.hasNext() && itTypeTable.hasNext())
@@ -218,10 +210,10 @@ public class OpTableCombinations {
 
                 //Restituisce il tipo fornito dal match
                 if (flag) {
-                    return new SymbolType(new ArrayList<>(List.of(opRow.getRisultato())));
+                    return new SymbolType(opRow.getRisultato());
                 }
             }
-            throw new RuntimeException("I tipi "+symbolTypeList.stream().flatMap(symbolType -> symbolType.getOutTypeList().stream()).map(Type::getName).toList() + " non sono supportati");
+            throw new RuntimeException("Il tipo "+symbolTypeList.stream().map(symbolType -> symbolType.getOutType().getName() + " non è supportato"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

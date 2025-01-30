@@ -51,6 +51,7 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
             this.symbolRows.add(symbolRow);
         } else {
             if(lookUp(symbolRow.getName()).getKind().equals(symbolRow.getKind())){
+                System.out.println("sto confrontando: " + lookUp(symbolRow.getName()).getName() + " con " + symbolRow.getName());
                 throw new Error("Variable already declared");
             } else {
                 this.symbolRows.add(symbolRow);
@@ -96,8 +97,14 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
 
     public void addTypeToId(String name, SymbolType symbolType) {
         Optional<SymbolRow> symbolRowOptional = this.getSymbolRows().stream().filter(symbolRow -> symbolRow.getName().equals(name)).findFirst();
-        if (symbolRowOptional.isPresent())
-            symbolRowOptional.get().setType(symbolType);
+        if (symbolRowOptional.isPresent()){
+            if(symbolRowOptional.get().getKind().equals("Var")){
+                symbolRowOptional.get().setType(new SymbolType(null, symbolType.getOutType()));
+            } else {
+                symbolRowOptional.get().setType(symbolType);
+            }
+        }
+
         else if (this.father != null)
             this.father.addTypeToId(name, symbolType);
         else

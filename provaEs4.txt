@@ -10,6 +10,7 @@ program
     def sottrazioneIntera(a:int; b:int):int {
         return a - b;
     }
+    y = 7: int;
 z:int;
     def sottrazioneDouble(a:double; b:double):double {
         return a - b;
@@ -73,6 +74,7 @@ begin
         }
         stampaMenuScelta();
         scelta << ;
+        rosario := 10+10;
     }
 
 end

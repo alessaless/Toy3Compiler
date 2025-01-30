@@ -74,26 +74,9 @@ public class ScopeVisitor implements Visitor{
             bodyOp.setSymbolTable(symbolTable);
         }
         symbolTableLocal = bodyOp.getSymbolTable();
-
         if (bodyOp.getSymbolTable() != null) {
             bodyOp.getVarDeclOps().forEach(varDeclOp -> {
-                Type t = varDeclOp.getTypeOrConstOp().getType();
-                varDeclOp.getVarsOptInitOpList().forEach(decl -> {
-                    try {
-                        SymbolRow row = new SymbolRow(
-                                decl.getId().getValue(),
-                                "Var",
-                                new SymbolType(null, t),
-                                "");
-                        try {
-                            symbolTable.addID(row);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                varDeclOp.accept(this);
             });
         }
 
@@ -153,7 +136,7 @@ public class ScopeVisitor implements Visitor{
                         pVarOp.getId().getValue(),
                         "Var",
                         new SymbolType(null, parDeclOp.getType()),
-                        "");
+                        isRef);
                 try {
                     symbolTableLocal.addID(row);
                 } catch (Exception e) {
@@ -263,6 +246,34 @@ public class ScopeVisitor implements Visitor{
     }
     @Override
     public Object visit(VarDeclOp varDeclOp) {
+        if(varDeclOp.getVarsOptInitOpList().size()>1){
+            if(varDeclOp.getTypeOrConstOp().isConstant()){
+                throw new Error("Stai assegnando una costante a più variabili");
+            }
+        }
+
+        Type t = varDeclOp.getTypeOrConstOp().getType();
+        varDeclOp.getVarsOptInitOpList().forEach(decl -> {
+            if(decl.getExpr() != null){
+                if(varDeclOp.getTypeOrConstOp().isConstant()){
+                    throw new Error("Non puoi assegnare una variabile dichiarata tramite il tipo di una costante");
+                }
+            }
+            try {
+                SymbolRow row = new SymbolRow(
+                        decl.getId().getValue(),
+                        "Var",
+                        new SymbolType(null, t),
+                        "");
+                try {
+                    symbolTableLocal.addID(row);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
         return null;
     }
 
