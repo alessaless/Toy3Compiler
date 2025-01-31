@@ -235,4 +235,10 @@ public class TypeVisitor implements Visitor{
     public Object visit(FunCallOpExpr funCallOpExpr) {
         return symbolTableLocal.returnTypeOfId(funCallOpExpr.getId().getValue());
     }
+
+
+    @Override
+    public Object visit(FunCallOpStat funCallOpStat) {
+        return symbolTableLocal.returnTypeOfId(funCallOpStat.getId().getValue());
+    }
 }
