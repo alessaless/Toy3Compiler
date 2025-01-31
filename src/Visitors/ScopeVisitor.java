@@ -27,7 +27,6 @@ public class ScopeVisitor implements Visitor{
 
         if (programOp.getDeclOp().getDefDeclOps() != null) {
             programOp.getDeclOp().getDefDeclOps().forEach(decl -> {
-
                 SymbolRow row = new SymbolRow(
                         decl.getId().getValue(),
                         "Funz",

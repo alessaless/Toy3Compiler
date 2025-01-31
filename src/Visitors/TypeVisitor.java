@@ -12,6 +12,7 @@ import SymbolTable.*;
 import Visitors.OpTable.OpTableCombinations;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TypeVisitor implements Visitor{
     static SymbolTable symbolTableLocal;
@@ -35,6 +36,8 @@ public class TypeVisitor implements Visitor{
 
     @Override
     public Object visit(DefDeclOp defDeclOp) {
+        symbolTableLocal = defDeclOp.getSymbolTable();
+        defDeclOp.getParDeclOps().forEach(parDeclOp -> parDeclOp.accept(this));
         return null;
     }
 
