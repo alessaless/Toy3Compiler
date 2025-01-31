@@ -12,7 +12,6 @@ import SymbolTable.*;
 import Visitors.OpTable.OpTableCombinations;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class TypeVisitor implements Visitor{
     static SymbolTable symbolTableLocal;
@@ -84,7 +83,6 @@ public class TypeVisitor implements Visitor{
                     throw new Error("Type mismatch");
                 }
             }
-            //types.add((SymbolType) id.accept(this));
         });
 
         return null;
@@ -225,7 +223,6 @@ public class TypeVisitor implements Visitor{
 
     @Override
     public Object visit(Const constOp) {
-        System.out.println("\n\nStampa costante"+constOp.getValue());
         return new SymbolType(new Type(Const.getConstantType(constOp.getValue()), false));
     }
 

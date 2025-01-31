@@ -32,4 +32,5 @@ public interface Visitor {
     Object visit(Const constOp);
     Object visit(FunCallOp funCallOp);
     Object visit(FunCallOpExpr funCallOpExpr);
+    Object visit(FunCallOpStat funCallOpStat);
 }

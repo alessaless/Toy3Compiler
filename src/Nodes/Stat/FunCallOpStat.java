@@ -2,10 +2,12 @@ package Nodes.Stat;
 
 import Nodes.Expr.Expr;
 import Nodes.Expr.ID;
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
 
 import java.util.ArrayList;
 
-public class FunCallOpStat extends Stat{
+public class FunCallOpStat extends Stat implements NodeVisitor {
     ID id;
     ArrayList<Expr> parametri;
     public FunCallOpStat(ID id, ArrayList<Expr> parametri) {
@@ -36,5 +38,10 @@ public class FunCallOpStat extends Stat{
     public void addExprList(ArrayList<Expr> parametri) {
         parametri.forEach(super::add);
         this.parametri.addAll(parametri);
+    }
+
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 }

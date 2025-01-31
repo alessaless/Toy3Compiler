@@ -85,6 +85,18 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
         }
     }
 
+    public SymbolRow lookUpWithKind(String name, String kind){
+        if(!probe(name)){
+            if(this.father != null){
+                return this.father.lookUpWithKind(name, kind);
+            } else {
+                return null;
+            }
+        } else {
+            return this.symbolRows.stream().filter(symbolRow -> symbolRow.getName().equals(name) && symbolRow.getKind().equals(kind)).findFirst().get();
+        }
+    }
+
     //Restituisce il tipo di un dato id
     public SymbolType returnTypeOfId(String name) {
         Optional<SymbolRow> symbolRowOptional = this.getSymbolRows().stream().filter(symbolRow -> symbolRow.getName().equals(name)).findFirst();
@@ -109,5 +121,18 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
             this.father.addTypeToId(name, symbolType);
         else
             throw new RuntimeException("L'id " + name + " non è stato dichiarato pt2");
+    }
+
+    //voglio una funzione che mi restituisce la tabella dei simboli dato in input una certa SymbolRow
+    public SymbolTable getSymbolTable(SymbolRow symbolRow){
+        if(this.symbolRows.contains(symbolRow)){
+            return this;
+        } else {
+            if(this.father != null){
+                return this.father.getSymbolTable(symbolRow);
+            } else {
+                return null;
+            }
+        }
     }
 }

@@ -293,6 +293,11 @@ public class ScopeVisitor implements Visitor{
     }
 
     @Override
+    public Object visit(FunCallOpStat funCallOpStat) {
+        return null;
+    }
+
+    @Override
     public Object visit(AssignOp assignOp) {
         assignOp.getIdList().forEach(id -> {
             System.out.println("ID: "+id.getValue());

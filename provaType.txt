@@ -1,0 +1,9 @@
+program
+    x : 10;
+    def sommaDouble(ref a:double; b:int):int {
+        return a;  // vai in symbol table di defdecl
+    }
+begin
+
+    a := sommaDouble(a, b);
+end
