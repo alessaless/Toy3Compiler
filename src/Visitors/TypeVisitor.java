@@ -16,12 +16,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TypeVisitor implements Visitor{
     static SymbolTable symbolTableLocal;
+    private ArrayList<DefDeclOp> dichiarazioniFunzioni = new ArrayList<>();
 
     @Override
     public Object visit(ProgramOp programOp) {
         symbolTableLocal = programOp.getSymbolTable();
         programOp.getDeclOp().getVarDeclOps().forEach(varDeclOp -> varDeclOp.accept(this));
-        programOp.getDeclOp().getDefDeclOps().forEach(defDeclOp -> defDeclOp.accept(this));
+        programOp.getDeclOp().getDefDeclOps().forEach(defDeclOp -> {
+            dichiarazioniFunzioni.add(defDeclOp);
+            defDeclOp.accept(this);
+        });
+
         programOp.getBodyOp().accept(this);
         return null;
     }
@@ -236,6 +241,38 @@ public class TypeVisitor implements Visitor{
 
     @Override
     public Object visit(FunCallOpExpr funCallOpExpr) {
+
+
+        DefDeclOp quellachemiserve=dichiarazioniFunzioni.stream().filter(decl -> decl.getId().getValue().equals(funCallOpExpr.getId().getValue())).findFirst().get();
+        AtomicInteger totParametri = new AtomicInteger();
+        quellachemiserve.getParDeclOps().forEach(parDeclOp -> {
+            totParametri.addAndGet(parDeclOp.getPvarOps().size());
+        });
+
+        if(totParametri.get() != funCallOpExpr.getParametri().size()){
+            throw new Error("Stai passando un numero diverso di parametri alla funzione");
+        }
+
+        quellachemiserve.getParDeclOps().forEach(parDeclOp -> {
+            AtomicInteger i = new AtomicInteger();
+            parDeclOp.getPvarOps().forEach(pVarOp -> {
+                if(pVarOp.isRef()){
+                    System.out.println("Sono un ref");
+                    if(funCallOpExpr.getParametri().get(i.get()) instanceof ID) {
+                        System.out.println("sono un id");
+                        ID idVar = (ID) funCallOpExpr.getParametri().get(i.get());
+                        if(symbolTableLocal.lookUpWithKind(idVar.getValue(), "Var")!=null) {
+                            System.out.println("mi ha trovato nella tab dei simboli ");
+                            i.getAndIncrement();
+                        } else {
+                            throw new Error("Stai passando per riferimento qualcosa che non è una variabile");
+                        }
+                    } else {
+                        throw new Error("Stai passando per riferimento qualcosa che non è una variabile");
+                    }
+                }
+            });
+        });
         return symbolTableLocal.returnTypeOfId(funCallOpExpr.getId().getValue());
     }
 

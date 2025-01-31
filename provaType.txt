@@ -4,6 +4,6 @@ program
         return a;  // vai in symbol table di defdecl
     }
 begin
-
-    a := sommaDouble(a, b);
+    a|c:int;
+    b := sommaDouble(6,c);
 end

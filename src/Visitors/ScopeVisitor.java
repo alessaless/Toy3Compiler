@@ -299,7 +299,7 @@ public class ScopeVisitor implements Visitor{
     @Override
     public Object visit(AssignOp assignOp) {
         assignOp.getIdList().forEach(id -> {
-            System.out.println("ID: "+id.getValue());
+            // System.out.println("ID: "+id.getValue());
             if(!symbolTableLocal.lookUpBoolean(id.getValue())){
                 SymbolRow row = new SymbolRow(
                         id.getValue(),
