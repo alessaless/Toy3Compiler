@@ -48,6 +48,19 @@ public class TypeVisitor implements Visitor{
     public Object visit(DefDeclOp defDeclOp) {
         symbolTableLocal = defDeclOp.getSymbolTable();
         defDeclOp.getParDeclOps().forEach(parDeclOp -> parDeclOp.accept(this));
+        // controllo che il tipo di ritorno della funzione sia uguale al tipo di ritorno delle returnOp
+        defDeclOp.getBodyOp().getStatOps().forEach(stat -> {
+            if(stat instanceof ReturnOp){
+                if(defDeclOp.getType().isVoid()){
+                    throw new Error("Stai cercando di ritornare un tipo da una funzione void");
+                }
+                SymbolType symbolType =  (SymbolType) stat.accept(this);
+                if(!symbolType.getOutType().getName().equals(defDeclOp.getType().getName())){
+                    throw new Error("Stai cercando di ritornare un tipo diverso da quello dichiarato");
+                }
+            }
+        });
+
         return null;
     }
 
