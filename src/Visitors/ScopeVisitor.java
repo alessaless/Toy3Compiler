@@ -14,6 +14,7 @@ import SymbolTable.SymbolType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScopeVisitor implements Visitor{
     static SymbolTable symbolTableLocal;
@@ -65,8 +66,16 @@ public class ScopeVisitor implements Visitor{
                 varDeclOp.accept(this);
             });
         }
-
-        bodyOp.getStatOps().forEach(stat -> stat.accept(this));
+        AtomicInteger numeroReturnPerFunzione = new AtomicInteger(0);
+        bodyOp.getStatOps().forEach(stat -> {
+            if(stat instanceof ReturnOp){
+                numeroReturnPerFunzione.getAndIncrement();
+            }
+            if(numeroReturnPerFunzione.get() > 1){
+                throw new Error("Stai cercando di ritornare più di un valore da una funzione");
+            }
+            stat.accept(this);
+        });
         symbolTableLocal = symbolTableFather;
         return null;
     }
@@ -106,8 +115,22 @@ public class ScopeVisitor implements Visitor{
                 }
             });
         });
+        AtomicInteger numeroReturnPerFunzione = new AtomicInteger(0);
+        defDeclOp.getBodyOp().getStatOps().forEach(stat ->
+        {
+            if(stat instanceof ReturnOp){
+                numeroReturnPerFunzione.getAndIncrement();
+            }
+            if(numeroReturnPerFunzione.get() > 1){
+                throw new Error("Stai cercando di ritornare più di un valore da una funzione");
+            }
+            stat.accept(this);
+        });
 
-        defDeclOp.getBodyOp().getStatOps().forEach(stat -> stat.accept(this));
+        // controllo la presenza di almeno un return
+        if(numeroReturnPerFunzione.get() != 1 && defDeclOp.getType().getName() != "Void"){
+            throw new Error("Non c'è nessun return in questa funzione");
+        }
 
         symbolTableLocal = symbolTableFather;
         return null;
@@ -299,7 +322,7 @@ public class ScopeVisitor implements Visitor{
     @Override
     public Object visit(AssignOp assignOp) {
         assignOp.getIdList().forEach(id -> {
-            // System.out.println("ID: "+id.getValue());
+            System.out.println("ID: "+id.getValue());
             if(!symbolTableLocal.lookUpBoolean(id.getValue())){
                 SymbolRow row = new SymbolRow(
                         id.getValue(),

@@ -40,7 +40,7 @@ public class Const extends Expr implements NodeVisitor {
             return "INT";
         } else if (str.matches("-?\\d*\\.\\d+")) {
             return "DOUBLE";
-        } else if (str.length() == 1) {
+        } else if (str.length() == 3 && str.charAt(0) == '\'' && str.charAt(2) == '\'') {
             return "CHAR";
         } else if(str.equals("true") || str.equals("false")) {
             return "BOOL";

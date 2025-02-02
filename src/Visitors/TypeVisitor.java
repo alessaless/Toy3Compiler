@@ -11,6 +11,7 @@ import Nodes.Type;
 import SymbolTable.*;
 import Visitors.OpTable.OpTableCombinations;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -35,7 +36,11 @@ public class TypeVisitor implements Visitor{
     public Object visit(BodyOp bodyOp) {
         symbolTableLocal = bodyOp.getSymbolTable();
         bodyOp.getVarDeclOps().forEach(varDeclOp -> varDeclOp.accept(this));
-        bodyOp.getStatOps().forEach(stat -> stat.accept(this));
+        AtomicInteger numeroReturnPerBody = new AtomicInteger(0);
+        bodyOp.getStatOps().forEach(stat ->
+        {
+            stat.accept(this);
+        });
         return null;
     }
 
@@ -48,18 +53,11 @@ public class TypeVisitor implements Visitor{
 
     @Override
     public Object visit(VarDeclOp varDeclOp) {
-        /*
-        varDeclOp.getVarsOptInitOpList().forEach(varsOptInitOp -> {
-            Type exprType;
-            if(varsOptInitOp.getExpr() != null){
-                exprType = varsOptInitOp.getExpr().accept(this);
-            }
-            if(!symbolTableLocal.returnTypeOfId(varsOptInitOp.getId().getName()).getOutTypeList().get(0).equals(exprType)){
-                throw new Error("Type mismatch");
-            }
-        });
-
-         */
+        if(varDeclOp.getTypeOrConstOp().isConstant()) {
+            Const constant = varDeclOp.getTypeOrConstOp().getConstant();
+            Type t = new Type(constant.getConstantType(constant.getValue()), false);
+            symbolTableLocal.lookUpWithKind(varDeclOp.getVarsOptInitOpList().get(0).getId().getValue(), "Var").getType().setOutType(t);
+        }
         return null;
     }
 
@@ -87,8 +85,8 @@ public class TypeVisitor implements Visitor{
                 //devo andare ad aggiungere il tipo alla variabile prendendolo dall'array di types
                 symbolTableLocal.addTypeToId(id.getValue(), types.get(assignOp.getIdList().indexOf(id)));
             }else{
-                if(!symbolTableLocal.returnTypeOfId(id.getValue()).getOutType().equals(types.get(assignOp.getIdList().indexOf(id)).getOutType())){
-                    throw new Error("Type mismatch");
+                if(!symbolTableLocal.returnTypeOfId(id.getValue()).getOutType().getName().equals(types.get(assignOp.getIdList().indexOf(id)).getOutType().getName())){
+                    throw new Error("Stai assegnando un tipo diverso da quello dichiarato");
                 }
             }
         });
@@ -98,7 +96,8 @@ public class TypeVisitor implements Visitor{
 
     @Override
     public Object visit(ID id) {
-        return symbolTableLocal.returnTypeOfId(id.getValue());
+        SymbolType t = symbolTableLocal.returnTypeOfId(id.getValue());
+        return t;
     }
 
     @Override
@@ -108,16 +107,34 @@ public class TypeVisitor implements Visitor{
 
     @Override
     public Object visit(WhileOp whileOp) {
+        SymbolType t = (SymbolType)  whileOp.getCondition().accept(this);
+        System.out.println("WhileOp "+t.getOutType().getName());
+        if(!t.getOutType().getName().equals("BOOL")){
+            throw new Error("La condizione del while non è di tipo booleano");
+        }
+        whileOp.getBody().accept(this);
         return null;
     }
 
     @Override
     public Object visit(IfThenOp ifThenOp) {
+        SymbolType t = (SymbolType) ifThenOp.getExpr().accept(this);
+        if(!t.getOutType().getName().equals("BOOL")){
+            throw new Error("La condizione dell'if non è di tipo booleano");
+        }
+        ifThenOp.getBodyOp().accept(this);
         return null;
     }
 
     @Override
     public Object visit(IfThenElseOp ifThenElseOp) {
+        ifThenElseOp.getCondizione().accept(this);
+        SymbolType t = (SymbolType)  ifThenElseOp.getCondizione().accept(this);
+        if(!t.getOutType().getName().equals("BOOL")){
+            throw new Error("La condizione dell'if non è di tipo booleano");
+        }
+        ifThenElseOp.getBodyIf().accept(this);
+        ifThenElseOp.getBodyElse().accept(this);
         return null;
     }
 
@@ -163,6 +180,7 @@ public class TypeVisitor implements Visitor{
             }
             types.add((SymbolType) boolOp.getValueL().accept(this));;
         } else if(boolOp.getValueL() instanceof BoolOp || boolOp.getValueL() instanceof UnaryOp || boolOp.getValueL() instanceof Const || boolOp.getValueL() instanceof ArithOp || boolOp.getValueL() instanceof RelOp){
+
             types.add((SymbolType) boolOp.getValueL().accept(this));
         }
         if(boolOp.getValueR() instanceof ID) {
@@ -192,7 +210,8 @@ public class TypeVisitor implements Visitor{
                 throw new Error("Variabile non dichiarata" + ((ID) relOp.getValueR()).getValue());
             }
             types.add((SymbolType) relOp.getValueR().accept(this));
-        } else if (relOp.getValueR() instanceof RelOp || relOp.getValueL() instanceof UnaryOp || relOp.getValueL() instanceof Const || relOp.getValueL() instanceof BoolOp || relOp.getValueL() instanceof ArithOp){
+        } else if (relOp.getValueR() instanceof RelOp || relOp.getValueR() instanceof UnaryOp || relOp.getValueR() instanceof Const || relOp.getValueR() instanceof BoolOp || relOp.getValueR() instanceof ArithOp){
+            System.out.println("relop Non è un id destro");
             types.add((SymbolType) relOp.getValueR().accept(this));
         }
         return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.RELATIONALOP);
@@ -215,7 +234,9 @@ public class TypeVisitor implements Visitor{
 
     @Override
     public Object visit(ReturnOp returnOp) {
-        return null;
+        SymbolType symbolType = (SymbolType) returnOp.getExpr().accept(this);
+        System.out.println("Prova "+symbolType.getOutType().getName());
+        return symbolType;
     }
 
     @Override
@@ -242,9 +263,10 @@ public class TypeVisitor implements Visitor{
     @Override
     public Object visit(FunCallOpExpr funCallOpExpr) {
 
-
+        // prendo la funzione che sto chiamando
         DefDeclOp quellachemiserve=dichiarazioniFunzioni.stream().filter(decl -> decl.getId().getValue().equals(funCallOpExpr.getId().getValue())).findFirst().get();
         AtomicInteger totParametri = new AtomicInteger();
+        // prendo il numero di parametri
         quellachemiserve.getParDeclOps().forEach(parDeclOp -> {
             totParametri.addAndGet(parDeclOp.getPvarOps().size());
         });
@@ -253,17 +275,33 @@ public class TypeVisitor implements Visitor{
             throw new Error("Stai passando un numero diverso di parametri alla funzione");
         }
 
+
+        ArrayList<SymbolType> tipiParametriChePasso = new ArrayList<>();
+        funCallOpExpr.getParametri().forEach(expr -> {
+            tipiParametriChePasso.add((SymbolType) expr.accept(this));
+        });
+
+        AtomicInteger i = new AtomicInteger(0);
+        //Foreach che controlla il tipo dei parametri di pardeclop con funcallop
         quellachemiserve.getParDeclOps().forEach(parDeclOp -> {
-            AtomicInteger i = new AtomicInteger();
             parDeclOp.getPvarOps().forEach(pVarOp -> {
-                if(pVarOp.isRef()){
-                    System.out.println("Sono un ref");
-                    if(funCallOpExpr.getParametri().get(i.get()) instanceof ID) {
-                        System.out.println("sono un id");
-                        ID idVar = (ID) funCallOpExpr.getParametri().get(i.get());
-                        if(symbolTableLocal.lookUpWithKind(idVar.getValue(), "Var")!=null) {
-                            System.out.println("mi ha trovato nella tab dei simboli ");
-                            i.getAndIncrement();
+                if(parDeclOp.getType().getName().equals(tipiParametriChePasso.get(i.get()).getOutType().getName())){
+                    i.getAndIncrement();
+                } else {
+                    throw new Error("Stai passando un tipo di parametro sbagliato");
+                }
+            });
+        });
+
+        // foreach che controlla passaggio dei parametri per riferimento
+        quellachemiserve.getParDeclOps().forEach(parDeclOp -> {
+            AtomicInteger j = new AtomicInteger();
+            parDeclOp.getPvarOps().forEach(pVarOp -> {
+                if(pVarOp.isRef()) {
+                    if (funCallOpExpr.getParametri().get(j.get()) instanceof ID) {
+                        ID idVar = (ID) funCallOpExpr.getParametri().get(j.get());
+                        if (symbolTableLocal.lookUpWithKind(idVar.getValue(), "Var") != null) {
+                            j.getAndIncrement();
                         } else {
                             throw new Error("Stai passando per riferimento qualcosa che non è una variabile");
                         }
@@ -273,6 +311,7 @@ public class TypeVisitor implements Visitor{
                 }
             });
         });
+
         return symbolTableLocal.returnTypeOfId(funCallOpExpr.getId().getValue());
     }
 
