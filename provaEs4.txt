@@ -3,7 +3,7 @@ program
         return a + b;
     }
 
-    def sommaDouble(a,c:double; b:int):double {
+    def sommaDouble(a:double; b:double):double {
         return a + b;
     }
 
@@ -33,7 +33,7 @@ z:int;
 
     def inputDouble(ref a:int) : double {
         "Inserisci numero double:" !>>;
-        a <<;
+        return 1.0;
     }
     a:double;
     b:double;
@@ -53,8 +53,8 @@ begin
             risultatointero !>>;
         }
         if(scelta == 2) then {
-            inputDouble(c);
-            inputDouble(d);
+            inputDouble(a);
+            inputDouble(b);
             risultatodouble := sommaDouble(c, d);
             risultatodouble !>>;
         }
@@ -65,8 +65,8 @@ begin
             risultatointero !>>;
         }
         if(scelta == 4) then {
-            c := inputDouble();
-            d := inputDouble();
+            c := inputDouble(a);
+            d := inputDouble(b);
             risultatodouble := sottrazioneDouble(c, d);
             risultatodouble !>>;
         } else {

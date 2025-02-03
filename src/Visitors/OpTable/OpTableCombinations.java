@@ -101,6 +101,18 @@ public class OpTableCombinations {
                             new OpRow(
                                     new ArrayList<>(List.of(new Type("BOOL", false), new Type("STRING", false))),
                                     new Type("STRING", false)
+                            ),
+                            new OpRow(
+                                    new ArrayList<>(List.of(new Type("CHAR", false), new Type("CHAR", false))),
+                                    new Type("STRING", false)
+                            ),
+                            new OpRow(
+                                    new ArrayList<>(List.of(new Type("CHAR", false), new Type("STRING", false))),
+                                    new Type("STRING", false)
+                            ),
+                            new OpRow(
+                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("CHAR", false))),
+                                    new Type("STRING", false)
                             )
                     )
             )
@@ -195,7 +207,6 @@ public class OpTableCombinations {
     );
 
     public static SymbolType checkCombination(ArrayList<SymbolType> symbolTypeList, EnumOpTable enumOpTable) {
-        System.out.println("Stampa Tipi Size "+symbolTypeList.size());
         try {
             //Prendo l'oggetto dato l'enum fornito in input
             OpTable opTable = (OpTable) OpTableCombinations.class.getDeclaredField(enumOpTable.name()).get(OpTableCombinations.class);

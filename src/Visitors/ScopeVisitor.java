@@ -139,7 +139,6 @@ public class ScopeVisitor implements Visitor{
     @Override
     public Object visit(ParDeclOp parDeclOp) {
         parDeclOp.getPvarOps().forEach(pVarOp -> {
-            System.out.println("STAMPA "+pVarOp.isRef());
             try {
                 // in caso un parametro sia passato per riferimeto aggiungo la stringa "Ref" al campo properties
                 String isRef = pVarOp.isRef() ? "Ref" : "";
@@ -303,27 +302,46 @@ public class ScopeVisitor implements Visitor{
         if(!symbolTableLocal.lookUpBoolean(funCallOp.getId().getValue())){
             throw new Error("Funzione non dichiarata" + funCallOp.getId().getValue());
         }
+
+        funCallOp.getParametri().forEach(expr -> {
+            expr.accept(this);
+        });
+
         return symbolTableLocal.returnTypeOfId(funCallOp.getId().getValue()).getOutType();
     }
 
     @Override
     public Object visit(FunCallOpExpr funCallOpExpr) {
-        if(!symbolTableLocal.lookUpBoolean(funCallOpExpr.getId().getValue())){
+        if(symbolTableLocal.lookUpWithKind(funCallOpExpr.getId().getValue(), "Funz") == null){
             throw new Error("Funzione non dichiarata" + funCallOpExpr.getId().getValue());
         }
+/*
+        funCallOpExpr.getParametri().forEach(expr -> {
+            expr.accept(this);
+        });
+
+        */
+
         return symbolTableLocal.returnTypeOfId(funCallOpExpr.getId().getValue()).getOutType();
     }
 
     @Override
     public Object visit(FunCallOpStat funCallOpStat) {
+        if(symbolTableLocal.lookUpWithKind(funCallOpStat.getId().getValue(), "Funz")==null){
+            throw new Error("Funzione non dichiarata " + funCallOpStat.getId().getValue());
+        }
+
+        funCallOpStat.getParametri().forEach(expr -> {
+            expr.accept(this);
+        });
+
         return null;
     }
 
     @Override
     public Object visit(AssignOp assignOp) {
         assignOp.getIdList().forEach(id -> {
-            System.out.println("ID: "+id.getValue());
-            if(!symbolTableLocal.lookUpBoolean(id.getValue())){
+            if(symbolTableLocal.lookUpWithKind(id.getValue(), "Var") == null){
                 SymbolRow row = new SymbolRow(
                         id.getValue(),
                         "Var",
@@ -347,7 +365,7 @@ public class ScopeVisitor implements Visitor{
 
     @Override
     public Object visit(ID id) {
-        if(!symbolTableLocal.lookUpBoolean(id.getValue())){
+        if(symbolTableLocal.lookUpWithKind(id.getValue(), "Var") == null){
             throw new Error("Variabile non dichiarata" + id.getValue());
         }
         return symbolTableLocal.returnTypeOfId(id.getValue()).getOutType();

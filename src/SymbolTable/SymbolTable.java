@@ -46,6 +46,10 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
         return this.symbolRows.stream().anyMatch(symbolRow -> symbolRow.getName().equals(name));
     }
 
+    public boolean probeWithKind(String name, String kind) {
+        return this.symbolRows.stream().anyMatch(symbolRow -> symbolRow.getName().equals(name) && symbolRow.getKind().equals(kind));
+    }
+
     public void addID (SymbolRow symbolRow) throws Exception {
         if(!probe(symbolRow.getName())){
             this.symbolRows.add(symbolRow);
@@ -86,7 +90,7 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
     }
 
     public SymbolRow lookUpWithKind(String name, String kind){
-        if(!probe(name)){
+        if(!probeWithKind(name, kind)){
             if(this.father != null){
                 return this.father.lookUpWithKind(name, kind);
             } else {
@@ -104,6 +108,15 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
             return symbolRowOptional.get().getType();
         else if (this.father != null)
             return this.father.returnTypeOfId(name);
+        throw new RuntimeException("L'id " + name + " non è stato dichiarato");
+    }
+
+    public SymbolType returnTypeOfIdWithKind(String name, String kind) {
+        Optional<SymbolRow> symbolRowOptional = this.getSymbolRows().stream().filter(symbolRow -> symbolRow.getName().equals(name) && symbolRow.getKind().equals(kind)).findFirst();
+        if (symbolRowOptional.isPresent())
+            return symbolRowOptional.get().getType();
+        else if (this.father != null)
+            return this.father.returnTypeOfIdWithKind(name, kind);
         throw new RuntimeException("L'id " + name + " non è stato dichiarato");
     }
 
