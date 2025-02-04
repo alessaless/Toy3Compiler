@@ -1,6 +1,7 @@
 package main.java.org.example;
 
 import Nodes.ProgramOp;
+import Visitors.CodeVisitor;
 import Visitors.NodeVisitor;
 import Visitors.ScopeVisitor;
 import Visitors.TypeVisitor;
@@ -42,6 +43,7 @@ public class App {
 
         ((ProgramOp) root).accept(new ScopeVisitor());
         ((ProgramOp) root).accept(new TypeVisitor());
+        ((ProgramOp) root).accept(new CodeVisitor("prova"));
     }
 
 }
