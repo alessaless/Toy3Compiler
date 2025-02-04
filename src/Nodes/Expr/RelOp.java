@@ -8,7 +8,7 @@ public class RelOp extends Op implements NodeVisitor {
     Expr valueR;
 
     public RelOp (Op op, Expr valueL, Expr valueR){
-        super("RelOp");
+        super(op.getName());
         super.add(op);
         super.add(valueL);
         super.add(valueR);

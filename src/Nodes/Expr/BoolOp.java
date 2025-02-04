@@ -8,9 +8,9 @@ public class BoolOp extends Op implements NodeVisitor {
     Expr valueR;
 
     public BoolOp (Op op, Expr valueL, Expr valueR){
-        super("BoolOp");
-        super.add(valueL);
+        super(op.getName());
         super.add(op);
+        super.add(valueL);
         super.add(valueR);
 
         this.valueL = valueL;
