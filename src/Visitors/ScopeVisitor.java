@@ -72,7 +72,7 @@ public class ScopeVisitor implements Visitor{
                 numeroReturnPerFunzione.getAndIncrement();
             }
             if(numeroReturnPerFunzione.get() > 1){
-                throw new Error("Stai cercando di ritornare più di un valore da una funzione");
+                throw new Error("Stai cercando di ritornare più di un valore nella funzione ");
             }
             stat.accept(this);
         });
