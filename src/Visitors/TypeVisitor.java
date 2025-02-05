@@ -72,6 +72,14 @@ public class TypeVisitor implements Visitor{
             Type t = new Type(constant.getConstantType(constant.getValue()), false);
             symbolTableLocal.lookUpWithKind(varDeclOp.getVarsOptInitOpList().get(0).getId().getValue(), "Var").getType().setOutType(t);
         }
+        varDeclOp.getVarsOptInitOpList().forEach(varsOptInitOp -> {
+            if(varsOptInitOp.getExpr() != null){
+                SymbolType t = varsOptInitOp.getExpr().accept(this) != null ? (SymbolType) varsOptInitOp.getExpr().accept(this) : null;
+                if(!t.getOutType().getName().equals(symbolTableLocal.returnTypeOfIdWithKind(varsOptInitOp.getId().getValue(), "Var").getOutType().getName()) ){
+                    throw new Error("Stai assegnando alla variabile "+varsOptInitOp.getId().getValue()+" un tipo diverso da quello dichiarato");
+                }
+            }
+        });
         return null;
     }
 
