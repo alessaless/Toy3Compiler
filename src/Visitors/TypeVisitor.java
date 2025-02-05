@@ -53,11 +53,11 @@ public class TypeVisitor implements Visitor{
         defDeclOp.getBodyOp().getStatOps().forEach(stat -> {
             if(stat instanceof ReturnOp){
                 if(defDeclOp.getType().isVoid()){
-                    throw new Error("Stai cercando di ritornare un tipo da una funzione void");
+                    throw new Error("Stai cercando di ritornare un tipo dalla funzione "+ defDeclOp.getId().getValue() + " che è di tipo void");
                 }
                 SymbolType symbolType =  (SymbolType) stat.accept(this);
                 if(!symbolType.getOutType().getName().equals(defDeclOp.getType().getName())){
-                    throw new Error("Stai cercando di ritornare un tipo diverso da quello dichiarato");
+                    throw new Error("Stai cercando di ritornare un tipo diverso da quello dichiarato per la funzione " + defDeclOp.getId().getValue());
                 }
             }
         });
@@ -176,7 +176,7 @@ public class TypeVisitor implements Visitor{
         ArrayList<SymbolType> types = new ArrayList<>();
         if(arithOp.getValueL() instanceof ID){
             if(!symbolTableLocal.lookUpBoolean(((ID) arithOp.getValueL()).getValue())){
-                throw new Error("Variabile non dichiarata" + ((ID) arithOp.getValueL()).getValue());
+                throw new Error("Variabile " + ((ID) arithOp.getValueR()).getValue() + " non dichiarata");
             }
             types.add((SymbolType) arithOp.getValueL().accept(this));;
         } else if(arithOp.getValueL() instanceof ArithOp || arithOp.getValueL() instanceof UnaryOp || arithOp.getValueL() instanceof Const || arithOp.getValueL() instanceof BoolOp || arithOp.getValueL() instanceof RelOp || arithOp.getValueL() instanceof FunCallOpExpr){
@@ -185,7 +185,7 @@ public class TypeVisitor implements Visitor{
 
         if(arithOp.getValueR() instanceof ID) {
             if (!symbolTableLocal.lookUpBoolean(((ID) arithOp.getValueR()).getValue())) {
-                throw new Error("Variabile non dichiarata" + ((ID) arithOp.getValueR()).getValue());
+                throw new Error("Variabile " + ((ID) arithOp.getValueR()).getValue() + " non dichiarata");
             }
             types.add((SymbolType) arithOp.getValueR().accept(this));
         } else if (arithOp.getValueR() instanceof ArithOp || arithOp.getValueR() instanceof UnaryOp || arithOp.getValueR() instanceof Const || arithOp.getValueR() instanceof BoolOp || arithOp.getValueR() instanceof RelOp|| arithOp.getValueR() instanceof FunCallOpExpr){
