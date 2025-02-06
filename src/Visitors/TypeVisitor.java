@@ -27,8 +27,8 @@ public class TypeVisitor implements Visitor{
             dichiarazioniFunzioni.add(defDeclOp);
             defDeclOp.accept(this);
         });
+        symbolTableLocal = programOp.getSymbolTable();
         programOp.getDeclOp().getVarDeclOps().forEach(varDeclOp -> varDeclOp.accept(this));
-
 
         programOp.getBodyOp().accept(this);
         return null;
@@ -50,6 +50,9 @@ public class TypeVisitor implements Visitor{
     public Object visit(DefDeclOp defDeclOp) {
         symbolTableLocal = defDeclOp.getSymbolTable();
         defDeclOp.getParDeclOps().forEach(parDeclOp -> parDeclOp.accept(this));
+
+        defDeclOp.getBodyOp().getVarDeclOps().forEach(varDeclOp -> varDeclOp.accept(this));
+
         // controllo che il tipo di ritorno della funzione sia uguale al tipo di ritorno delle returnOp
         defDeclOp.getBodyOp().getStatOps().forEach(stat -> {
             if(stat instanceof ReturnOp){
@@ -60,6 +63,8 @@ public class TypeVisitor implements Visitor{
                 if(!symbolType.getOutType().getName().equals(defDeclOp.getType().getName())){
                     throw new Error("Stai cercando di ritornare un tipo diverso da quello dichiarato per la funzione " + defDeclOp.getId().getValue());
                 }
+            } else {
+                stat.accept(this);
             }
         });
 
@@ -75,7 +80,9 @@ public class TypeVisitor implements Visitor{
         }
         varDeclOp.getVarsOptInitOpList().forEach(varsOptInitOp -> {
             if(varsOptInitOp.getExpr() != null){
+                System.out.println("Eccomi qua");
                 SymbolType t = varsOptInitOp.getExpr().accept(this) != null ? (SymbolType) varsOptInitOp.getExpr().accept(this) : null;
+                System.out.println("Tipo: " + symbolTableLocal.returnTypeOfIdWithKind(varsOptInitOp.getId().getValue(), "Var").getOutType().getName());
                 if(!t.getOutType().getName().equals(symbolTableLocal.returnTypeOfIdWithKind(varsOptInitOp.getId().getValue(), "Var").getOutType().getName()) ){
                     throw new Error("Stai assegnando alla variabile "+varsOptInitOp.getId().getValue()+" un tipo diverso da quello dichiarato");
                 }
