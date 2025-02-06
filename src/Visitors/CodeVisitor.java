@@ -68,6 +68,13 @@ public class CodeVisitor implements Visitor {
                 defDeclOp.accept(this);
             });
 
+            fileWriter.write("\n\nint main() {\n");
+            programOp.getBodyOp().accept(this);
+
+            if(!(programOp.getBodyOp().getStatOps().get(programOp.getBodyOp().getStatOps().size()-1) instanceof ReturnOp))
+                fileWriter.write("return 0;");
+            fileWriter.write("\n}");
+
             fileWriter.close();
 
         } catch (IOException e) {
@@ -116,21 +123,21 @@ public class CodeVisitor implements Visitor {
             String type = symbolRow.getType().getOutType().getName().toLowerCase();
             if(type.equals("string"))
                 type = "char*";
-                try {
-                    if(varsOptInitOp.getExpr() == null) {
-                        if(varDeclOp.getTypeOrConstOp().isConstant()){
-                            fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + varDeclOp.getTypeOrConstOp().getConstant().accept(this) + ";\n");
-                        } else {
-                            fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "; \n");
-                        }
+            try {
+                if(varsOptInitOp.getExpr() == null) {
+                    if(varDeclOp.getTypeOrConstOp().isConstant()){
+                        fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + varDeclOp.getTypeOrConstOp().getConstant().accept(this) + ";\n");
+                    } else {
+                        fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "; \n");
                     }
-                    else{
-                        fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + ConvertExprToString(varsOptInitOp.getExpr()) + ";\n");
-                    }
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
                 }
+                else{
+                    fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + ConvertExprToString(varsOptInitOp.getExpr()) + ";\n");
+                }
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
         return null;
     }
@@ -193,11 +200,31 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(IfThenOp ifThenOp) {
+        try {
+            fileWriter.write("if (");
+            fileWriter.write(ConvertExprToString(ifThenOp.getExpr()));
+            fileWriter.write(") {\n");
+            ifThenOp.getBodyOp().accept(this);
+            fileWriter.write("\n}\n");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
     @Override
     public Object visit(IfThenElseOp ifThenElseOp) {
+        try {
+            fileWriter.write("if (");
+            fileWriter.write(ConvertExprToString(ifThenElseOp.getCondizione()));
+            fileWriter.write(") {\n");
+            ifThenElseOp.getBodyIf().accept(this);
+            fileWriter.write("\n} else {\n");
+            ifThenElseOp.getBodyElse().accept(this);
+            fileWriter.write("}\n");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
@@ -217,13 +244,13 @@ public class CodeVisitor implements Visitor {
         String secondoOperando = (String) arithOp.getValueR().accept(this);
         switch (arithOp.getName()){
             case "AddOp":
-                return primoOperando + " + " + secondoOperando;
+                return "("+primoOperando + " + " + secondoOperando +")";
             case "MinOp":
-                return primoOperando + " - " + secondoOperando;
+                return "("+primoOperando + " - " + secondoOperando +")";
             case "TimesOp":
-                return primoOperando + " * " + secondoOperando;
+                return "("+primoOperando + " * " + secondoOperando +")";
             case "DivOp":
-                return primoOperando + " / " + secondoOperando;
+                return ""+primoOperando + " / " + secondoOperando +")";
         }
         return null;
     }
@@ -269,9 +296,9 @@ public class CodeVisitor implements Visitor {
         String operando = (String) unaryOp.getValue().accept(this);
         switch (unaryOp.getName()){
             case "MinusOp":
-                return "- " + operando;
+                return "- (" + operando + ")";
             case "NotOp":
-                return "! " + operando;
+                return "! (" + operando + ")";
         }
         return null;
     }
@@ -428,5 +455,7 @@ public class CodeVisitor implements Visitor {
             }
         });
     }
+
+
 
 }

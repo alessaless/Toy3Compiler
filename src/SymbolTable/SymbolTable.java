@@ -148,4 +148,26 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
             }
         }
     }
+
+    //una funzione probe dove va a controllare direttamente partendo dal padre se una variabile è presente nella tabella dei simboli
+    public boolean probeFromFatherWithKind(String name, String kind){
+        if(this.father != null){
+            return this.father.probeWithKind(name, kind);
+        } else {
+            return false;
+        }
+    }
+
+    // ritorna true se non deve essere dichiarata, false altrimenti
+    public boolean lookUpWithKindForInitialize(String name, String kind){
+        if(!probeFromFatherWithKind(name, kind)){
+            if(this.father != null){
+                return this.father.lookUpWithKindForInitialize(name, kind);
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
 }

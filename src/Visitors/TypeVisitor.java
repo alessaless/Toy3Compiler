@@ -31,6 +31,15 @@ public class TypeVisitor implements Visitor{
         programOp.getDeclOp().getVarDeclOps().forEach(varDeclOp -> varDeclOp.accept(this));
 
         programOp.getBodyOp().accept(this);
+
+        ReturnOp returnOp =  programOp.getBodyOp().getStatOps().get(programOp.getBodyOp().getStatOps().size()-1) instanceof ReturnOp ? (ReturnOp) programOp.getBodyOp().getStatOps().get(programOp.getBodyOp().getStatOps().size()-1) : null;
+        if(returnOp != null){
+            SymbolType t = (SymbolType) returnOp.getExpr().accept(this);
+            if(!t.getOutType().getName().toLowerCase().equals("int")) {
+                throw new Error("Il main deve restituire un intero.");
+            }
+        }
+
         return null;
     }
 

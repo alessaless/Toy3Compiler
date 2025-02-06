@@ -11,6 +11,7 @@ public class UnaryOp extends Expr implements NodeVisitor {
         super(name);
         super.add(value);
 
+        this.name = name;
         this.value = value;
 
     }
