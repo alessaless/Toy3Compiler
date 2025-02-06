@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CodeVisitor implements Visitor {
-    private static SymbolTable symbolTable;
+    private static SymbolTable symbolTableLocal;
     private final String fileName;
 
     private static FileWriter fileWriter;
@@ -99,6 +99,27 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(VarDeclOp varDeclOp) {
+        varDeclOp.getVarsOptInitOpList().forEach(varsOptInitOp -> {
+            SymbolRow symbolRow = symbolTableLocal.lookUpWithKind(varsOptInitOp.getId().getValue(), "Var");
+            String type = symbolRow.getType().getOutType().getName().toLowerCase();
+            if(type.equals("string"))
+                type = "char*";
+                try {
+                    if(varsOptInitOp.getExpr() == null) {
+                        if(varDeclOp.getTypeOrConstOp().isConstant()){
+                            fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + varDeclOp.getTypeOrConstOp().getConstant().accept(this) + ";\n");
+                        } else {
+                            fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "; \n");
+                        }
+                    }
+                    else{
+                        fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + ConvertExprToString(varsOptInitOp.getExpr()) + ";\n");
+                    }
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+        });
         return null;
     }
 
@@ -166,6 +187,15 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(BoolOp boolOp) {
+        String primoOperando = (String) boolOp.getValueL().accept(this);
+        String secondoOperando = (String) boolOp.getValueR().accept(this);
+
+        switch (boolOp.getName()){
+            case "AndOp":
+                return primoOperando + " && " + secondoOperando;
+            case "OrOp":
+                return primoOperando + " || " + secondoOperando;
+        }
         return null;
     }
 
@@ -193,6 +223,13 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(UnaryOp unaryOp) {
+        String operando = (String) unaryOp.getValue().accept(this);
+        switch (unaryOp.getName()){
+            case "MinusOp":
+                return "- " + operando;
+            case "NotOp":
+                return "! " + operando;
+        }
         return null;
     }
 
@@ -266,4 +303,53 @@ public class CodeVisitor implements Visitor {
             throw new RuntimeException(e);
         }
     }
+
+    private String ConvertExprToString(Expr expr) {
+        return (String) expr.accept(this);
+    }
+
+    private void scriviNelFileFirmaFunzione(DefDeclOp dichiarazione, Type type){
+        try {
+            String tipo = type.getName().toLowerCase();
+            if(tipo.equals("string"))
+                tipo = "char*";
+            fileWriter.write(tipo + " " + dichiarazione.getId().getValue() + "(");
+            AtomicInteger i = new AtomicInteger(0);
+            dichiarazione.getParDeclOps().forEach(parDeclOp -> {
+                parDeclOp.getPvarOps().forEach(pVarOp -> {
+                    if (i.get() > 0) {
+                        try {
+                            fileWriter.write(", "); // Aggiunge una virgola tra gli argomenti
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    try {
+                        if(pVarOp.isRef())
+                            fileWriter.write( parDeclOp.getType().getName().toLowerCase()+ "* " + pVarOp.getId().getValue());
+                        else
+                            fileWriter.write(parDeclOp.getType().getName().toLowerCase()+ " " + pVarOp.getId().getValue());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    i.incrementAndGet();
+                });
+            });
+            fileWriter.write(")");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void addFirmeFunzioni(){
+        dichiarazioniFunzioni.forEach(dichiarazione -> {
+            try {
+                scriviNelFileFirmaFunzione(dichiarazione, dichiarazione.getType());
+                fileWriter.write(";\n");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
 }

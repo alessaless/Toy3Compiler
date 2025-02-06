@@ -2,6 +2,10 @@
 
 program
 
+def stampaDouble(ref a,b:int; c:double):double{
+    a:= 10;
+    return 5.5;
+}
 
 a = 5:int;
 b = 6:int;
