@@ -80,9 +80,7 @@ public class TypeVisitor implements Visitor{
         }
         varDeclOp.getVarsOptInitOpList().forEach(varsOptInitOp -> {
             if(varsOptInitOp.getExpr() != null){
-                System.out.println("Eccomi qua");
                 SymbolType t = varsOptInitOp.getExpr().accept(this) != null ? (SymbolType) varsOptInitOp.getExpr().accept(this) : null;
-                System.out.println("Tipo: " + symbolTableLocal.returnTypeOfIdWithKind(varsOptInitOp.getId().getValue(), "Var").getOutType().getName());
                 if(!t.getOutType().getName().equals(symbolTableLocal.returnTypeOfIdWithKind(varsOptInitOp.getId().getValue(), "Var").getOutType().getName()) ){
                     throw new Error("Stai assegnando alla variabile "+varsOptInitOp.getId().getValue()+" un tipo diverso da quello dichiarato");
                 }

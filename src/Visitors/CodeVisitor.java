@@ -55,6 +55,7 @@ public class CodeVisitor implements Visitor {
             addUtils();
 
             addFirmeFunzioni();
+            fileWriter.write("\n");
 
 
             symbolTableLocal = programOp.getSymbolTable();
@@ -78,22 +79,33 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(BodyOp bodyOp) {
+        symbolTableLocal = bodyOp.getSymbolTable();
+        bodyOp.getVarDeclOps().forEach(varDeclOp -> {
+            varDeclOp.accept(this);
+        });
+        bodyOp.getStatOps().forEach(statOp -> {
+            statOp.accept(this);
+        });
         return null;
     }
 
     @Override
     public Object visit(DefDeclOp defDeclOp) {
-        dichiarazioniFunzioni.forEach(dichiarazione ->{
-            try {
-                scriviNelFileFirmaFunzione(dichiarazione, dichiarazione.getType());
-                fileWriter.write("{\n");
-                dichiarazione.getBodyOp().accept(this);
-                fileWriter.write("}\n");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
+        symbolTableLocal = defDeclOp.getSymbolTable();
+        try {
+            fileWriter.write("\n");
+            scriviNelFileFirmaFunzione(defDeclOp, defDeclOp.getType());
+            fileWriter.write("{\n");
+            defDeclOp.getBodyOp().getVarDeclOps().forEach(varDeclOp -> {
+                varDeclOp.accept(this);
+            });
+            defDeclOp.getBodyOp().getStatOps().forEach(statOp -> {
+                statOp.accept(this);
+            });
+            fileWriter.write("}\n");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
@@ -130,6 +142,29 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(AssignOp assignOp) {
+        ArrayList<ID> ids = assignOp.getIdList();
+        ArrayList<Expr> exprs = assignOp.getExprList();
+        Type type = null;
+        for(int i = 0; i < ids.size(); i++) {
+            if(!symbolTableLocal.lookUpWithKindForInitialize(ids.get(i).getValue(), "Var")){
+                // devo anche dichiarare la variabile
+                type = symbolTableLocal.returnTypeOfIdWithKind(ids.get(i).getValue(),"Var").getOutType();
+                try {
+                    if(type.getName().toLowerCase().equals("string"))
+                        type.setName("char*");
+                    fileWriter.write(type.getName().toLowerCase() + " " + ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                // solo assegnamento
+                try {
+                    fileWriter.write( ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
         return null;
     }
 
@@ -145,6 +180,14 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(WhileOp whileOp) {
+        try {
+            fileWriter.write("while (");
+            fileWriter.write(ConvertExprToString(whileOp.getCondition())+") {\n");
+            whileOp.getBody().accept(this);
+            fileWriter.write("\n}\n");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
@@ -235,6 +278,11 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(ReturnOp returnOp) {
+        try {
+            fileWriter.write("return "+ ConvertExprToString(returnOp.getExpr()) + ";\n");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
@@ -289,6 +337,34 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(FunCallOpStat funCallOpStat) {
+        Optional<DefDeclOp> quellachemiserve = dichiarazioniFunzioni.stream()
+                .filter(decl -> decl.getId().getValue().equals(funCallOpStat.getId().getValue()))
+                .findFirst();
+
+        StringBuilder toReturn = new StringBuilder(funCallOpStat.getId().getValue() + "(");
+
+        AtomicInteger i = new AtomicInteger(0);
+        quellachemiserve.get().getParDeclOps().forEach(parDeclOp -> {
+            parDeclOp.getPvarOps().forEach(pVarOp -> {
+                if (i.get() > 0) {
+                    toReturn.append(", "); // Aggiunge una virgola tra gli argomenti
+                }
+                if (pVarOp.isRef()) {
+                    toReturn.append("&").append(funCallOpStat.getParametri().get(i.get()).accept(this));
+                } else {
+                    toReturn.append(funCallOpStat.getParametri().get(i.get()).accept(this));
+                }
+                i.incrementAndGet();
+            });
+        });
+
+        toReturn.append("); \n");
+
+        try {
+            fileWriter.write(toReturn.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
@@ -325,10 +401,11 @@ public class CodeVisitor implements Visitor {
                         }
                     }
                     try {
+                        String tipoPar = parDeclOp.getType().getName().toLowerCase().equals("string") ? "char*" : parDeclOp.getType().getName().toLowerCase() ;
                         if(pVarOp.isRef())
-                            fileWriter.write( parDeclOp.getType().getName().toLowerCase()+ "* " + pVarOp.getId().getValue());
+                            fileWriter.write( tipoPar+ "* " + pVarOp.getId().getValue());
                         else
-                            fileWriter.write(parDeclOp.getType().getName().toLowerCase()+ " " + pVarOp.getId().getValue());
+                            fileWriter.write(tipoPar+ " " + pVarOp.getId().getValue());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

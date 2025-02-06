@@ -1,18 +1,91 @@
-// Programma esemplificativo in sintassi Toy3
-
 program
 
-def stampaDouble(ref a,b:int; c:double):double{
-    a:= 10;
-    return 5.5;
+// Dichiarazione variabili globali
+operazione: string;
+input1 | input2 | answer | result | res1 | res2 | res3 | res4 : double;
+flag: bool;
+
+def somma(input1: double; input2: double; ref result: double)
+{
+    result := input1 + input2;
 }
 
-a = 5:int;
-b = 6:int;
-c = 7.7:int; //se metto int al posto di double non da errore
+def sottrazione(input1: double; input2: double; ref result: double)
+{
+    result := input1 - input2;
+}
 
-cacca = stampaDouble(a,b,c):double ;
+def moltiplicazione(input1: double; input2: double): double
+{
+    return input1 * input2;
+}
+
+def divisione(input1: double; input2: double): double
+{
+    if (input2 == 0) then {
+        return 0.0;
+    }
+    return input1 / input2;
+}
+
+def tutteleoperazioni(input1: double; input2: double; ref res1: double; ref res2: double; ref res3: double; ref res4: double)
+{
+    somma(input1, input2, res1);
+    sottrazione(input1, input2, res2);
+    res4 := divisione(input1, input2);
+    res3 := moltiplicazione(input1, input2);
+}
+
+def stampa(stringa: string): string
+{
+    return "Ciao! " + stringa;
+}
+
+def tornoIntero(): int
+{
+    return 10;
+}
+
+def tornoDouble()
+{
+
+}
 
 begin
+    flag := true;
 
+    while (flag) do {
+
+        if (operazione == "somma") then {
+            somma(input1, input2, result);
+        }
+        else {
+            if (operazione == "sottrazione") then {
+                sottrazione(input1, input2, result);
+            }
+            else {
+                if (operazione == "divisione") then {
+                    result := divisione(input1, input2);
+                }
+                else {
+                    if (operazione == "moltiplicazione") then {
+                        result := moltiplicazione(input1, input2);
+                    }
+                    else {
+                        if (operazione == "tutteleoperazioni") then {
+                            tutteleoperazioni(input1, input2, res1, res2, res3, res4);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (answer == 1) then {
+            flag := true;
+        }
+        else {
+            flag := false;
+        }
+    }
+ return tornoDouble();
 end
