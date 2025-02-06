@@ -7,13 +7,19 @@ import Nodes.Decl.VarDeclOp;
 import Nodes.Expr.*;
 import Nodes.ProgramOp;
 import Nodes.Stat.*;
-import SymbolTable.SymbolTable;
+import Nodes.Type;
+import SymbolTable.*;
+import java_cup.runtime.Symbol;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CodeVisitor implements Visitor {
     private static SymbolTable symbolTable;
@@ -21,11 +27,18 @@ public class CodeVisitor implements Visitor {
 
     private static FileWriter fileWriter;
 
+    private ArrayList<DefDeclOp> dichiarazioniFunzioni = new ArrayList<>();
+
     public CodeVisitor(String fileName) {
         this.fileName = fileName;
     }
     @Override
     public Object visit(ProgramOp programOp) {
+
+        programOp.getDeclOp().getDefDeclOps().forEach(defDeclOp -> {
+            dichiarazioniFunzioni.add(defDeclOp);
+        });
+
         try {
 
             String path  = "test_files" + File.separator + "c_out" + File.separator;
@@ -41,17 +54,24 @@ public class CodeVisitor implements Visitor {
 
             addUtils();
 
+            addFirmeFunzioni();
+
+
+            symbolTableLocal = programOp.getSymbolTable();
+            programOp.getDeclOp().getVarDeclOps().forEach(varDeclOp -> {
+                varDeclOp.accept(this);
+            });
+
+
+            programOp.getDeclOp().getDefDeclOps().forEach(defDeclOp -> {
+                defDeclOp.accept(this);
+            });
 
             fileWriter.close();
-
-
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
-
 
         return null;
     }
@@ -63,6 +83,17 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(DefDeclOp defDeclOp) {
+        dichiarazioniFunzioni.forEach(dichiarazione ->{
+            try {
+                scriviNelFileFirmaFunzione(dichiarazione, dichiarazione.getType());
+                fileWriter.write("{\n");
+                dichiarazione.getBodyOp().accept(this);
+                fileWriter.write("}\n");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
         return null;
     }
 
@@ -83,7 +114,7 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(ID id) {
-        return null;
+        return id.getValue().toString();
     }
 
     @Override
@@ -118,6 +149,18 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(ArithOp arithOp) {
+        String primoOperando = (String) arithOp.getValueL().accept(this);
+        String secondoOperando = (String) arithOp.getValueR().accept(this);
+        switch (arithOp.getName()){
+            case "AddOp":
+                return primoOperando + " + " + secondoOperando;
+            case "MinOp":
+                return primoOperando + " - " + secondoOperando;
+            case "TimesOp":
+                return primoOperando + " * " + secondoOperando;
+            case "DivOp":
+                return primoOperando + " / " + secondoOperando;
+        }
         return null;
     }
 
@@ -128,6 +171,23 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(RelOp relOp) {
+        String primoOperando = (String) relOp.getValueL().accept(this);
+        String secondoOperando = (String) relOp.getValueR().accept(this);
+
+        switch (relOp.getName()){
+            case "GtOp":
+                return primoOperando + " > " + secondoOperando;
+            case "GeOp":
+                return primoOperando + " >= " + secondoOperando;
+            case "LtOp":
+                return primoOperando + " < " + secondoOperando;
+            case "LeOp":
+                return primoOperando + " <= " + secondoOperando;
+            case "EqOp":
+                return primoOperando + " == " + secondoOperando;
+            case "NeOp":
+                return primoOperando + " != " + secondoOperando;
+        }
         return null;
     }
 
@@ -153,7 +213,7 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(Const constOp) {
-        return null;
+        return constOp.getValue().toString();
     }
 
     @Override
@@ -163,7 +223,31 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(FunCallOpExpr funCallOpExpr) {
-        return null;
+
+        Optional<DefDeclOp> quellachemiserve = dichiarazioniFunzioni.stream()
+                .filter(decl -> decl.getId().getValue().equals(funCallOpExpr.getId().getValue()))
+                .findFirst();
+
+        StringBuilder toReturn = new StringBuilder(funCallOpExpr.getId().getValue() + "(");
+
+        AtomicInteger i = new AtomicInteger(0);
+        quellachemiserve.get().getParDeclOps().forEach(parDeclOp -> {
+            parDeclOp.getPvarOps().forEach(pVarOp -> {
+                if (i.get() > 0) {
+                    toReturn.append(", "); // Aggiunge una virgola tra gli argomenti
+                }
+                if (pVarOp.isRef()) {
+                    toReturn.append("&").append(funCallOpExpr.getParametri().get(i.get()).accept(this));
+                } else {
+                    toReturn.append(funCallOpExpr.getParametri().get(i.get()).accept(this));
+                }
+                i.incrementAndGet();
+            });
+        });
+
+        toReturn.append(")");
+
+        return toReturn.toString();
     }
 
     @Override
@@ -177,6 +261,7 @@ public class CodeVisitor implements Visitor {
             String path = "src" + File.separator +"Visitors"+ File.separator +"UtilsCFunc.c";
             String content = Files.readString(Path.of(path));
             fileWriter.write(content);
+            fileWriter.write("\n\n");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

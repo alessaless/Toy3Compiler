@@ -23,11 +23,12 @@ public class TypeVisitor implements Visitor{
     @Override
     public Object visit(ProgramOp programOp) {
         symbolTableLocal = programOp.getSymbolTable();
-        programOp.getDeclOp().getVarDeclOps().forEach(varDeclOp -> varDeclOp.accept(this));
         programOp.getDeclOp().getDefDeclOps().forEach(defDeclOp -> {
             dichiarazioniFunzioni.add(defDeclOp);
             defDeclOp.accept(this);
         });
+        programOp.getDeclOp().getVarDeclOps().forEach(varDeclOp -> varDeclOp.accept(this));
+
 
         programOp.getBodyOp().accept(this);
         return null;

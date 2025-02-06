@@ -1,8 +1,14 @@
+// Programma esemplificativo in sintassi Toy3
+
 program
 
 
+a = 5:int;
+b = 6:int;
+c = 7.7:int; //se metto int al posto di double non da errore
+
+cacca = stampaDouble(a,b,c):double ;
+
 begin
-    b : double;
-    b := 1;
 
 end
