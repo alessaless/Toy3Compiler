@@ -1,5 +1,8 @@
 program
 
+y:int;
+variabile:string;
+
 // Dichiarazione variabili globali
 operazione: string;
 input1 | input2 | answer | result | res1 | res2 | res3 | res4 : double;

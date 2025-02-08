@@ -125,6 +125,7 @@ public class CodeVisitor implements Visitor {
                 type = "char*";
             try {
                 if(varsOptInitOp.getExpr() == null) {
+                    //operazione su stringhe di strcpy
                     if(varDeclOp.getTypeOrConstOp().isConstant()){
                         fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + varDeclOp.getTypeOrConstOp().getConstant().accept(this) + ";\n");
                     } else {
@@ -132,6 +133,7 @@ public class CodeVisitor implements Visitor {
                     }
                 }
                 else{
+                    //qua invece concat
                     if(type.equals("string")) {
                         type = "char";
                         fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "[MAXCHAR]= " + ConvertExprToString(varsOptInitOp.getExpr()) + ";\n");
@@ -158,7 +160,8 @@ public class CodeVisitor implements Visitor {
         ArrayList<Expr> exprs = assignOp.getExprList();
         Type type = null;
         for(int i = 0; i < ids.size(); i++) {
-            if(!symbolTableLocal.lookUpWithKindForInitialize(ids.get(i).getValue(), "Var")){
+            // !symbolTableLocal.lookUpWithKindForInitialize(ids.get(i).getValue(), "Var") &&
+            if(symbolTableLocal.lookUpWithKind(ids.get(i).getValue(), "Var").getProperties().equals("toDeclare")){
                 // devo anche dichiarare la variabile
                 type = symbolTableLocal.returnTypeOfIdWithKind(ids.get(i).getValue(),"Var").getOutType();
                 try {
@@ -169,6 +172,7 @@ public class CodeVisitor implements Visitor {
                     throw new RuntimeException(e);
                 }
             } else {
+                System.out.println("Sei in solo assegnamento");
                 // solo assegnamento
                 try {
                     fileWriter.write( ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");

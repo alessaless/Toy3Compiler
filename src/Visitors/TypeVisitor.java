@@ -120,6 +120,7 @@ public class TypeVisitor implements Visitor{
         assignOp.getIdList().forEach(id -> {
             if (symbolTableLocal.returnTypeOfId(id.getValue()).getOutType() == null){
                 //devo andare ad aggiungere il tipo alla variabile prendendolo dall'array di types
+                symbolTableLocal.lookUpWithKind(id.getValue(), "Var").setProperties("toDeclare");
                 symbolTableLocal.addTypeToId(id.getValue(), types.get(assignOp.getIdList().indexOf(id)));
             }else{
                 if(!symbolTableLocal.returnTypeOfId(id.getValue()).getOutType().getName().equals(types.get(assignOp.getIdList().indexOf(id)).getOutType().getName())){
