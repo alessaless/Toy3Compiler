@@ -148,7 +148,17 @@ public class CodeVisitor implements Visitor {
                     //qua invece concat
                     if(type.equals("string")) {
                         type = "char";
-                        fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "[MAXCHAR]= " + ConvertExprToString(varsOptInitOp.getExpr()) + ";\n");
+                        if(varsOptInitOp.getExpr() instanceof ArithOp){
+                            type = "char*";
+                            fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = ");
+                            concatOp(varsOptInitOp.getExpr());
+                            fileWriter.write(";\n");
+                        } else if(varsOptInitOp.getExpr() instanceof FunCallOpExpr){
+                            fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "[MAXCHAR];\n");
+                            fileWriter.write("strcpy(" + varsOptInitOp.getId().getValue() + ", " + ConvertExprToString(varsOptInitOp.getExpr())+ ");\n");
+                        } else {
+                            fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "[MAXCHAR]= " + ConvertExprToString(varsOptInitOp.getExpr()) + ";\n");
+                        }
                     } else {
                         fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + ConvertExprToString(varsOptInitOp.getExpr()) + ";\n");
                     }
@@ -202,10 +212,8 @@ public class CodeVisitor implements Visitor {
                     }
                 }
             } else {
-                System.out.println("Sei in solo assegnamento");
                 // solo assegnamento
                 try {
-                    System.out.println(symbolTableLocal.lookUpWithKind(ids.get(i).getValue(), "Var").getType().getOutType().getName() + " è il tipo di  "+ ids.get(i).getValue());
                     if(symbolTableLocal.lookUpWithKind(ids.get(i).getValue(), "Var").getType().getOutType().getName().equals("STRING")){
                         if(exprs.get(i) instanceof ArithOp){
                             fileWriter.write("strcpy(" + ids.get(i).getValue() + ", ");
@@ -294,6 +302,9 @@ public class CodeVisitor implements Visitor {
         String secondoOperando = (String) arithOp.getValueR().accept(this);
         switch (arithOp.getName()){
             case "AddOp":
+                if(tipoLatoSinistro.equals("STRING") && tipoLatoDestro.equals("STRING")){
+                    return "str_concat(" + primoOperando + ", " + secondoOperando + ")";
+                }
                 return "("+primoOperando + " + " + secondoOperando +")";
             case "MinOp":
                 return "("+primoOperando + " - " + secondoOperando +")";
@@ -380,7 +391,7 @@ public class CodeVisitor implements Visitor {
                         break;
                     case "double":
                         try {
-                            fileWriter.write("%f" );
+                            fileWriter.write("%lf" );
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -431,6 +442,7 @@ public class CodeVisitor implements Visitor {
     @Override
     public Object visit(WriteOp writeOp) {
         try {
+            //Inserisco i tipi di variabili che devo stampare
             fileWriter.write("printf(\"");
             writeOp.getExprList().forEach(expr -> {
                if(expr instanceof Const c){
@@ -447,13 +459,18 @@ public class CodeVisitor implements Visitor {
                    stampaPercentPerPrintf(getTypeOfOp(op).toLowerCase());
                }
             });
+            if(writeOp.getName().equals("OutNewLine")){
+                fileWriter.write("\\n");
+            }
             fileWriter.write("\", ");
+
+            //inserisco le variabili da stampare
             writeOp.getExprList().forEach(expr -> {
                 if(expr instanceof Const c){
                     try {
-                        if(writeOp.getExprList().get(writeOp.getExprList().size()-1).equals(expr))
-                            fileWriter.write(c.getValue().toString());
-                        else
+                        if(writeOp.getExprList().get(writeOp.getExprList().size()-1).equals(expr)) {
+                                fileWriter.write(c.getValue().toString());
+                        }else
                             fileWriter.write(c.getValue().toString()+", ");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -461,9 +478,9 @@ public class CodeVisitor implements Visitor {
                 }
                 else if(expr instanceof FunCallOpExpr  || expr instanceof ID ) {
                     try {
-                        if(writeOp.getExprList().get(writeOp.getExprList().size()-1).equals(expr))
+                        if(writeOp.getExprList().get(writeOp.getExprList().size()-1).equals(expr)) {
                             fileWriter.write(ConvertExprToString(expr));
-                        else
+                        }else
                             fileWriter.write(ConvertExprToString(expr)  + ", ");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -471,9 +488,9 @@ public class CodeVisitor implements Visitor {
                 }
                 else if(expr instanceof Op op){
                     try {
-                        if(writeOp.getExprList().get(writeOp.getExprList().size()-1).equals(op))
+                        if(writeOp.getExprList().get(writeOp.getExprList().size()-1).equals(op)) {
                             fileWriter.write(ConvertExprToString(op));
-                        else
+                        }else
                             fileWriter.write(ConvertExprToString(op)  + ", ");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -648,7 +665,7 @@ public class CodeVisitor implements Visitor {
         }
     }
 
-    String getTypeOfOp(Expr expr) {
+    private String getTypeOfOp(Expr expr) {
         if(expr instanceof Const c){
             return Const.getConstantType(c.getValue());
         } else if(expr instanceof ID id){
@@ -679,7 +696,6 @@ public class CodeVisitor implements Visitor {
 
             String tipo1 = getTypeOfOp(relOp.getValueL());
             String tipo2 = getTypeOfOp(relOp.getValueR());
-            System.out.println(tipo1 + " " + tipo2);
             ArrayList<SymbolType> types = new ArrayList<>(
                     List.of(
                             new SymbolType(new Type(tipo1, false)),

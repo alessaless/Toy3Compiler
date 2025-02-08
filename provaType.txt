@@ -1,27 +1,52 @@
 program
+    def sommaIntera(a:int; b:int):int {
+        return a + b;
+    }
 
-y:int;
-variabile:string;
+    def sommaDouble(a:double; b:double):double {
+        return a + b;
+    }
 
-def prova(a:string):string {
-    return a;
-}
+    def stampaMenuScelta() {
+        "1) Addizione intera" !>>;
+        "2) Addizione double" !>>;
+        "0) End" !>>;
+    }
 
+    def inputIntero() :int {
+        a:int;
+        "Inserisci numero intero:" !>>;
+        a <<;
+        return a;
+    }
+
+    def inputDouble() :double {
+        b:double;
+        "Inserisci numero double:" !>>;
+        b <<;
+        return b;
+    }
 
 begin
-    x:double;
-    concatenazioneProva:string;
-
-
-    concatenazione := "Stringa1" + "Stringa2";
-    concatenazioneProva := "Stringa1" + "Ciao";
-
-    x := 20.20;
-    variabile := "ciao";
-
-    y := 7;
-
-    variabile, " ", y, " ", concatenazioneProva >>;
-
-
+    a | b | risultatointero: int;
+    c | d | risultatodouble: double;
+    scelta := 1;
+    stampaMenuScelta();
+    scelta <<;
+    while(scelta <> 0) do {
+        if(scelta == 1) then {
+            a := inputIntero();
+            b := inputIntero();
+            risultatointero := sommaIntera(a, b);
+            risultatointero !>>;
+        }
+        if(scelta == 2) then {
+            c := inputDouble();
+            d := inputDouble();
+            risultatodouble := sommaDouble(c, d);
+            risultatodouble !>>;
+        }
+        stampaMenuScelta();
+        scelta << ;
+    }
 end
