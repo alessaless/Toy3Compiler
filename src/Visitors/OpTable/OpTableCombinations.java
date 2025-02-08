@@ -157,6 +157,30 @@ public class OpTableCombinations {
                             new OpRow(
                                     new ArrayList<>(List.of(new Type("STRING", false), new Type("STRING", false))),
                                     new Type("BOOL", false)
+                            ),
+                            new OpRow(
+                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("INT", false))),
+                                    new Type("BOOL", false)
+                            ),
+                            new OpRow(
+                                    new ArrayList<>(List.of(new Type("INT", false), new Type("STRING", false))),
+                                    new Type("BOOL", false)
+                            ),
+                            new OpRow(
+                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("DOUBLE", false))),
+                                    new Type("BOOL", false)
+                            ),
+                            new OpRow(
+                                    new ArrayList<>(List.of(new Type("DOUBLE", false), new Type("STRING", false))),
+                                    new Type("BOOL", false)
+                            ),
+                            new OpRow(
+                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("BOOL", false))),
+                                    new Type("BOOL", false)
+                            ),
+                            new OpRow(
+                                    new ArrayList<>(List.of(new Type("BOOL", false), new Type("STRING", false))),
+                                    new Type("BOOL", false)
                             )
                     )
             )
@@ -255,7 +279,7 @@ public class OpTableCombinations {
                     return new SymbolType(opRow.getRisultato());
                 }
             }
-            throw new RuntimeException("Il tipo "+symbolTypeList.stream().map(symbolType -> symbolType.getOutType().getName() + " non è supportato"));
+            throw new RuntimeException("Il tipo non è supportato");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

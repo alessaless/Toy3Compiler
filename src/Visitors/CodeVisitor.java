@@ -300,6 +300,9 @@ public class CodeVisitor implements Visitor {
     public Object visit(ArithOp arithOp) {
         String primoOperando = (String) arithOp.getValueL().accept(this);
         String secondoOperando = (String) arithOp.getValueR().accept(this);
+        String tipoLatoSinistro = getTypeOfOp(arithOp.getValueL());
+        String tipoLatoDestro = getTypeOfOp(arithOp.getValueR());
+
         switch (arithOp.getName()){
             case "AddOp":
                 if(tipoLatoSinistro.equals("STRING") && tipoLatoDestro.equals("STRING")){
@@ -332,22 +335,40 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(RelOp relOp) {
-        String primoOperando = (String) relOp.getValueL().accept(this);
-        String secondoOperando = (String) relOp.getValueR().accept(this);
+        String tipoLatoSinistro = getTypeOfOp(relOp.getValueL());
+        String tipoLatoDestro = getTypeOfOp(relOp.getValueR());
+        /*
+        if(tipoLatoSinistro.equals("STRING") || tipoLatoDestro.equals("STRING")){
+            // allora dobbiamo fare strcmp
+            if((relOp.getValueL() instanceof Const && !tipoLatoSinistro.equals("STRING"))){
+                return "strcmp(\"" + ConvertExprToString(relOp.getValueL()) + "\", " + ConvertExprToString(relOp.getValueR()) + ")";
+            }
+            if( relOp.getValueR() instanceof Const && !tipoLatoDestro.equals("STRING")){
+                return "strcmp(" + ConvertExprToString(relOp.getValueL()) + ", " +"\"" + ConvertExprToString(relOp.getValueR()) +"\"" + ")";
+            }
+            return "strcmp(" + ConvertExprToString(relOp.getValueL()) + ", " + ConvertExprToString(relOp.getValueR()) + ")";
 
-        switch (relOp.getName()){
-            case "GtOp":
-                return primoOperando + " > " + secondoOperando;
-            case "GeOp":
-                return primoOperando + " >= " + secondoOperando;
-            case "LtOp":
-                return primoOperando + " < " + secondoOperando;
-            case "LeOp":
-                return primoOperando + " <= " + secondoOperando;
-            case "EqOp":
-                return primoOperando + " == " + secondoOperando;
-            case "NeOp":
-                return primoOperando + " != " + secondoOperando;
+        } */
+        if(tipoLatoSinistro.equals("STRING") && tipoLatoDestro.equals("STRING")){
+            return "strcmp(" + ConvertExprToString(relOp.getValueL()) + ", " + ConvertExprToString(relOp.getValueR()) + ")";
+        }
+        else {
+            String primoOperando = (String) relOp.getValueL().accept(this);
+            String secondoOperando = (String) relOp.getValueR().accept(this);
+            switch (relOp.getName()){
+                case "GtOp":
+                    return primoOperando + " > " + secondoOperando;
+                case "GeOp":
+                    return primoOperando + " >= " + secondoOperando;
+                case "LtOp":
+                    return primoOperando + " < " + secondoOperando;
+                case "LeOp":
+                    return primoOperando + " <= " + secondoOperando;
+                case "EqOp":
+                    return primoOperando + " == " + secondoOperando;
+                case "NeOp":
+                    return primoOperando + " != " + secondoOperando;
+            }
         }
         return null;
     }
