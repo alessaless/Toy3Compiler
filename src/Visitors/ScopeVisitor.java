@@ -366,7 +366,7 @@ public class ScopeVisitor implements Visitor{
     @Override
     public Object visit(ID id) {
         if(symbolTableLocal.lookUpWithKind(id.getValue(), "Var") == null){
-            throw new Error("Variabile non dichiarata" + id.getValue());
+            throw new Error("Variabile non dichiarata " + id.getValue());
         }
         return symbolTableLocal.returnTypeOfId(id.getValue()).getOutType();
     }

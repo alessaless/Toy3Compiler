@@ -9,6 +9,7 @@ import Nodes.ProgramOp;
 import Nodes.Stat.*;
 import Nodes.Type;
 import SymbolTable.*;
+import Visitors.OpTable.OpTableCombinations;
 import java_cup.runtime.Symbol;
 
 import java.io.File;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -121,15 +123,25 @@ public class CodeVisitor implements Visitor {
         varDeclOp.getVarsOptInitOpList().forEach(varsOptInitOp -> {
             SymbolRow symbolRow = symbolTableLocal.lookUpWithKind(varsOptInitOp.getId().getValue(), "Var");
             String type = symbolRow.getType().getOutType().getName().toLowerCase();
-            if(type.equals("string"))
-                type = "char*";
+
             try {
                 if(varsOptInitOp.getExpr() == null) {
                     //operazione su stringhe di strcpy
                     if(varDeclOp.getTypeOrConstOp().isConstant()){
-                        fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + varDeclOp.getTypeOrConstOp().getConstant().accept(this) + ";\n");
+                        if(type.equals("string")){
+                            type = "char";
+                            fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "[MAXCHAR] = " + varDeclOp.getTypeOrConstOp().getConstant().accept(this) + ";\n");
+                        } else {
+                            fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + varDeclOp.getTypeOrConstOp().getConstant().accept(this) + ";\n");
+                        }
+
                     } else {
-                        fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "; \n");
+                        if(type.equals("string")){
+                            type = "char";
+                            fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "[MAXCHAR]; \n");
+                        } else {
+                            fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "; \n");
+                        }
                     }
                 }
                 else{
@@ -164,18 +176,47 @@ public class CodeVisitor implements Visitor {
             if(symbolTableLocal.lookUpWithKind(ids.get(i).getValue(), "Var").getProperties().equals("toDeclare")){
                 // devo anche dichiarare la variabile
                 type = symbolTableLocal.returnTypeOfIdWithKind(ids.get(i).getValue(),"Var").getOutType();
-                try {
-                    if(type.getName().toLowerCase().equals("string"))
+                if(type.getName().toLowerCase().equals("string")){
+                    type.setName("char");
+                    if(exprs.get(i) instanceof ArithOp){
                         type.setName("char*");
-                    fileWriter.write(type.getName().toLowerCase() + " " + ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                        try {
+                            fileWriter.write(type.getName().toLowerCase() + " " + ids.get(i).getValue() + " = ");
+                            concatOp(exprs.get(i));
+                            fileWriter.write(";\n");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else{
+                        try {
+                            fileWriter.write(type.getName().toLowerCase() + " " + ids.get(i).getValue() + "[MAXCHAR] = " + ConvertExprToString(exprs.get(i))+ ";\n");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                } else {
+                    try {
+                        fileWriter.write(type.getName().toLowerCase() + " " + ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             } else {
                 System.out.println("Sei in solo assegnamento");
                 // solo assegnamento
                 try {
-                    fileWriter.write( ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
+                    System.out.println(symbolTableLocal.lookUpWithKind(ids.get(i).getValue(), "Var").getType().getOutType().getName() + " è il tipo di  "+ ids.get(i).getValue());
+                    if(symbolTableLocal.lookUpWithKind(ids.get(i).getValue(), "Var").getType().getOutType().getName().equals("STRING")){
+                        if(exprs.get(i) instanceof ArithOp){
+                            fileWriter.write("strcpy(" + ids.get(i).getValue() + ", ");
+                            concatOp(exprs.get(i));
+                            fileWriter.write(");\n");
+                        } else {
+                            fileWriter.write("strcpy(" + ids.get(i).getValue() + ", " + ConvertExprToString(exprs.get(i))+ ");\n");
+                        }
+                    }else {
+                        fileWriter.write( ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -324,11 +365,125 @@ public class CodeVisitor implements Visitor {
 
     @Override
     public Object visit(ReadOp readOp) {
+        try {
+            fileWriter.write("scanf(\"");
+            readOp.getVariabili().forEach(var -> {
+                Type t = symbolTableLocal.lookUpWithKind(var.getValue(), "Var").getType().getOutType();
+                switch (t.getName().toLowerCase()) {
+                    case "int":
+                    case "bool":
+                        try {
+                            fileWriter.write("%d" );
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
+                    case "double":
+                        try {
+                            fileWriter.write("%f" );
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
+                    case "string":
+                        try {
+                            fileWriter.write("%s" );
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
+                }
+            });
+            fileWriter.write("\", ");
+            readOp.getVariabili().forEach(var -> {
+                Type t = symbolTableLocal.lookUpWithKind(var.getValue(), "Var").getType().getOutType();
+                switch (t.getName().toLowerCase()) {
+                    case "int":
+                    case "bool":
+                    case "double":
+                        try {
+                            if(readOp.getVariabili().get(readOp.getVariabili().size()-1).equals(var))
+                                fileWriter.write("&" + var.getValue() + ");\n");
+                            else
+                                fileWriter.write("&" + var.getValue() + ", ");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
+                    case "string":
+                        try {
+                            if(readOp.getVariabili().get(readOp.getVariabili().size()-1).equals(var))
+                                fileWriter.write(" " + var.getValue() + ");\n");
+                            else
+                                fileWriter.write(" " + var.getValue() + ", ");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
     @Override
     public Object visit(WriteOp writeOp) {
+        try {
+            fileWriter.write("printf(\"");
+            writeOp.getExprList().forEach(expr -> {
+               if(expr instanceof Const c){
+                   stampaPercentPerPrintf(Const.getConstantType(c.getValue()));
+               }
+               else if(expr instanceof FunCallOpExpr funCallOpExpr) {
+                   String tipo = symbolTableLocal.lookUpWithKind(funCallOpExpr.getId().getValue(), "Funz").getType().getOutType().toString().toLowerCase();
+                   stampaPercentPerPrintf(tipo);
+               } else if(expr instanceof ID id){
+                   String tipo = symbolTableLocal.lookUpWithKind(id.getValue(), "Var").getType().getOutType().toString().toLowerCase();
+                   stampaPercentPerPrintf(tipo);
+               }
+               else if(expr instanceof Op op){
+                   stampaPercentPerPrintf(getTypeOfOp(op).toLowerCase());
+               }
+            });
+            fileWriter.write("\", ");
+            writeOp.getExprList().forEach(expr -> {
+                if(expr instanceof Const c){
+                    try {
+                        if(writeOp.getExprList().get(writeOp.getExprList().size()-1).equals(expr))
+                            fileWriter.write(c.getValue().toString());
+                        else
+                            fileWriter.write(c.getValue().toString()+", ");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                else if(expr instanceof FunCallOpExpr  || expr instanceof ID ) {
+                    try {
+                        if(writeOp.getExprList().get(writeOp.getExprList().size()-1).equals(expr))
+                            fileWriter.write(ConvertExprToString(expr));
+                        else
+                            fileWriter.write(ConvertExprToString(expr)  + ", ");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                else if(expr instanceof Op op){
+                    try {
+                        if(writeOp.getExprList().get(writeOp.getExprList().size()-1).equals(op))
+                            fileWriter.write(ConvertExprToString(op));
+                        else
+                            fileWriter.write(ConvertExprToString(op)  + ", ");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            fileWriter.write(");\n");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
@@ -466,5 +621,93 @@ public class CodeVisitor implements Visitor {
     }
 
 
+    private void stampaPercentPerPrintf(String tipo){
+        switch (tipo.toLowerCase()){
+            case "string":
+                try {
+                    fileWriter.write("%s");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "int":
+            case "bool":
+                try {
+                    fileWriter.write("%d");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "double":
+                try {
+                    fileWriter.write("%f");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+        }
+    }
+
+    String getTypeOfOp(Expr expr) {
+        if(expr instanceof Const c){
+            return Const.getConstantType(c.getValue());
+        } else if(expr instanceof ID id){
+            return symbolTableLocal.lookUpWithKind(id.getValue(), "Var").getType().getOutType().getName();
+        } else if(expr instanceof FunCallOpExpr funCallOpExpr){
+            return symbolTableLocal.lookUpWithKind(funCallOpExpr.getId().getValue(), "Funz").getType().getOutType().getName();
+        } else if(expr instanceof ArithOp arithOp) {
+            String tipo1 = getTypeOfOp(arithOp.getValueL());
+            String tipo2 = getTypeOfOp(arithOp.getValueR());
+            ArrayList<SymbolType> types = new ArrayList<>(
+                    List.of(
+                            new SymbolType(new Type(tipo1, false)),
+                            new SymbolType(new Type(tipo2, false))
+                    )
+            );
+            return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.ARITHOP).getOutType().getName();
+        } else if(expr instanceof BoolOp boolOp) {
+            String tipo1 = getTypeOfOp(boolOp.getValueL());
+            String tipo2 = getTypeOfOp(boolOp.getValueR());
+            ArrayList<SymbolType> types = new ArrayList<>(
+                    List.of(
+                            new SymbolType(new Type(tipo1, false)),
+                            new SymbolType(new Type(tipo2, false))
+                    )
+            );
+            return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.BOOLOP).getOutType().getName();
+        }else if(expr instanceof RelOp relOp) {
+
+            String tipo1 = getTypeOfOp(relOp.getValueL());
+            String tipo2 = getTypeOfOp(relOp.getValueR());
+            System.out.println(tipo1 + " " + tipo2);
+            ArrayList<SymbolType> types = new ArrayList<>(
+                    List.of(
+                            new SymbolType(new Type(tipo1, false)),
+                            new SymbolType(new Type(tipo2, false))
+                    )
+            );
+            return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.RELATIONALOP).getOutType().getName();
+        } else if (expr instanceof UnaryOp unaryOp) {
+            String tipo = getTypeOfOp(unaryOp.getValue());
+            ArrayList<SymbolType> types = new ArrayList<>(
+                    List.of(
+                            new SymbolType(new Type(tipo,false))
+                    )
+            );
+            return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.UNARYOP).getOutType().getName();
+        } else {
+            throw new Error("Errore, tipo non riconosciuto");
+        }
+    }
+
+    private void concatOp(Expr expr) throws IOException {
+        System.out.println("siamo in concatOp");
+        // Se è un'operazione binaria
+        if(expr instanceof ArithOp arithOp){
+            if(arithOp.getName().equals("AddOp")){
+                fileWriter.write("str_concat(" + ConvertExprToString(arithOp.getValueL()) + "," + ConvertExprToString(arithOp.getValueR()) + ")");
+            }
+        }
+    }
 
 }

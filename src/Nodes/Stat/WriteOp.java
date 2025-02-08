@@ -10,7 +10,10 @@ public class WriteOp extends Stat implements NodeVisitor {
 
     String name;
     ArrayList<Expr> exprList;
-    public WriteOp(String name, ArrayList<Expr> exprList){ // TODO: come gestire il new line???
+
+
+    // newline gestito con string name diverso.
+    public WriteOp(String name, ArrayList<Expr> exprList){
         super(name);
         exprList.forEach(super::add);
 
