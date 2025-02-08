@@ -304,6 +304,14 @@ public class TypeVisitor implements Visitor{
 
     @Override
     public Object visit(WriteOp writeOp) {
+        writeOp.getExprList().forEach(expr -> {
+            if(expr instanceof FunCallOpExpr funcall){
+                Type t = symbolTableLocal.lookUpWithKind(funcall.getId().getValue(),"Funz").getType().getOutType();
+                if(t.isVoid()){
+                    throw new Error("Stai cercando di stampare una funzione void");
+                }
+            }
+        });
         return null;
     }
 

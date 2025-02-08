@@ -132,7 +132,12 @@ public class CodeVisitor implements Visitor {
                     }
                 }
                 else{
-                    fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + ConvertExprToString(varsOptInitOp.getExpr()) + ";\n");
+                    if(type.equals("string")) {
+                        type = "char";
+                        fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + "[MAXCHAR]= " + ConvertExprToString(varsOptInitOp.getExpr()) + ";\n");
+                    } else {
+                        fileWriter.write(type + " " + varsOptInitOp.getId().getValue() + " = " + ConvertExprToString(varsOptInitOp.getExpr()) + ";\n");
+                    }
                 }
 
             } catch (IOException e) {
