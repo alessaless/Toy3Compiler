@@ -17,6 +17,16 @@ public class ArithOp extends Op implements NodeVisitor {
         this.valueR = valueR;
     }
 
+    public ArithOp (String name, Expr valueL, Expr valueR){
+        super(name);
+        //super.add(op);
+        super.add(valueL);
+        super.add(valueR);
+
+        this.valueL = valueL;
+        this.valueR = valueR;
+    }
+
     public Expr getValueL() {
         return valueL;
     }
