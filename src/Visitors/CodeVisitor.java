@@ -342,7 +342,13 @@ public class CodeVisitor implements Visitor {
                     secondoOperando = "*" + secondoOperando;
                 }
                 return "("+primoOperando + " + " + secondoOperando +")";
-            case "MinOp":
+            case "MinusOp":
+                if(symbolTableLocal.lookUpWithKind(primoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(primoOperando,"Var").getProperties().equals("Ref")){
+                    primoOperando = "*" + primoOperando;
+                }
+                if(symbolTableLocal.lookUpWithKind(secondoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(secondoOperando,"Var").getProperties().equals("Ref")){
+                    secondoOperando = "*" + secondoOperando;
+                }
                 return "("+primoOperando + " - " + secondoOperando +")";
             case "TimesOp":
                 if(symbolTableLocal.lookUpWithKind(primoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(primoOperando,"Var").getProperties().equals("Ref")){
@@ -353,7 +359,13 @@ public class CodeVisitor implements Visitor {
                 }
                 return "("+primoOperando + " * " + secondoOperando +")";
             case "DivOp":
-                return ""+primoOperando + " / " + secondoOperando +")";
+                if(symbolTableLocal.lookUpWithKind(primoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(primoOperando,"Var").getProperties().equals("Ref")){
+                    primoOperando = "*" + primoOperando;
+                }
+                if(symbolTableLocal.lookUpWithKind(secondoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(secondoOperando,"Var").getProperties().equals("Ref")){
+                    secondoOperando = "*" + secondoOperando;
+                }
+                return "("+primoOperando + " / " + secondoOperando +")";
         }
         return null;
     }
