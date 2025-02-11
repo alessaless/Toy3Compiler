@@ -157,30 +157,6 @@ public class OpTableCombinations {
                             new OpRow(
                                     new ArrayList<>(List.of(new Type("STRING", false), new Type("STRING", false))),
                                     new Type("BOOL", false)
-                            ),
-                            new OpRow(
-                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("INT", false))),
-                                    new Type("BOOL", false)
-                            ),
-                            new OpRow(
-                                    new ArrayList<>(List.of(new Type("INT", false), new Type("STRING", false))),
-                                    new Type("BOOL", false)
-                            ),
-                            new OpRow(
-                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("DOUBLE", false))),
-                                    new Type("BOOL", false)
-                            ),
-                            new OpRow(
-                                    new ArrayList<>(List.of(new Type("DOUBLE", false), new Type("STRING", false))),
-                                    new Type("BOOL", false)
-                            ),
-                            new OpRow(
-                                    new ArrayList<>(List.of(new Type("STRING", false), new Type("BOOL", false))),
-                                    new Type("BOOL", false)
-                            ),
-                            new OpRow(
-                                    new ArrayList<>(List.of(new Type("BOOL", false), new Type("STRING", false))),
-                                    new Type("BOOL", false)
                             )
                     )
             )

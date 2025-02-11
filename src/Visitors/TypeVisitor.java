@@ -25,18 +25,22 @@ public class TypeVisitor implements Visitor{
         symbolTableLocal = programOp.getSymbolTable();
         programOp.getDeclOp().getDefDeclOps().forEach(defDeclOp -> {
             dichiarazioniFunzioni.add(defDeclOp);
-            defDeclOp.accept(this);
         });
-        symbolTableLocal = programOp.getSymbolTable();
+
         programOp.getDeclOp().getVarDeclOps().forEach(varDeclOp -> varDeclOp.accept(this));
 
+        programOp.getDeclOp().getDefDeclOps().forEach(defDeclOp -> {
+            defDeclOp.accept(this);
+        });
         programOp.getBodyOp().accept(this);
 
-        ReturnOp returnOp =  programOp.getBodyOp().getStatOps().get(programOp.getBodyOp().getStatOps().size()-1) instanceof ReturnOp ? (ReturnOp) programOp.getBodyOp().getStatOps().get(programOp.getBodyOp().getStatOps().size()-1) : null;
-        if(returnOp != null){
-            SymbolType t = (SymbolType) returnOp.getExpr().accept(this);
-            if(!t.getOutType().getName().toLowerCase().equals("int")) {
-                throw new Error("Il main deve restituire un intero.");
+        if(!(programOp.getBodyOp().getStatOps().size() == 0)){
+            ReturnOp returnOp =  programOp.getBodyOp().getStatOps().get(programOp.getBodyOp().getStatOps().size()-1) instanceof ReturnOp ? (ReturnOp) programOp.getBodyOp().getStatOps().get(programOp.getBodyOp().getStatOps().size()-1) : null;
+            if(returnOp != null){
+                SymbolType t = (SymbolType) returnOp.getExpr().accept(this);
+                if(!t.getOutType().getName().toLowerCase().equals("int")) {
+                    throw new Error("Il main deve restituire un intero.");
+                }
             }
         }
 
@@ -210,14 +214,16 @@ public class TypeVisitor implements Visitor{
 
         boolean flag = false;
 
+
         for (SymbolType type : types) {
             if ((type.getOutType().getName().equals("STRING") || type.getOutType().getName().equals("CHAR"))) {
                 flag = true;
             }
         }
 
-        if(flag){
-            if(arithOp.getName().equals("AddOp")){
+
+        if(flag) {
+            if (arithOp.getName().equals("AddOp")) {
                 return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.CONCATOP);
             } else {
                 throw new Error("Operazione non consentita su stringhe");
@@ -234,7 +240,7 @@ public class TypeVisitor implements Visitor{
             if(!symbolTableLocal.lookUpBoolean(((ID) boolOp.getValueL()).getValue())){
                 throw new Error("Variabile non dichiarata" + ((ID) boolOp.getValueL()).getValue());
             }
-            types.add((SymbolType) boolOp.getValueL().accept(this));;
+            types.add((SymbolType) boolOp.getValueL().accept(this));
         } else if(boolOp.getValueL() instanceof BoolOp || boolOp.getValueL() instanceof UnaryOp || boolOp.getValueL() instanceof Const || boolOp.getValueL() instanceof ArithOp || boolOp.getValueL() instanceof RelOp || boolOp.getValueL() instanceof FunCallOpExpr){
 
             types.add((SymbolType) boolOp.getValueL().accept(this));
@@ -283,7 +289,6 @@ public class TypeVisitor implements Visitor{
         } else if(unaryOp.getValue() instanceof UnaryOp || unaryOp.getValue() instanceof ArithOp || unaryOp.getValue() instanceof Const || unaryOp.getValue() instanceof BoolOp || unaryOp.getValue() instanceof RelOp || unaryOp.getValue() instanceof FunCallOpExpr){
             types.add((SymbolType) unaryOp.getValue().accept(this));
         }
-
         return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.UNARYOP);
     }
 

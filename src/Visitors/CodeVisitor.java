@@ -43,9 +43,9 @@ public class CodeVisitor implements Visitor {
 
         try {
 
-            String path  = "test_files" + File.separator + "c_out" + File.separator;
+            String path = "test_files" + File.separator + "c_out" + File.separator;
 
-            if(!Files.exists(Path.of(path)))
+            if (!Files.exists(Path.of(path)))
                 new File(path).mkdirs();
 
             File file = new File(path + File.separator + this.fileName + ".c");
@@ -73,8 +73,12 @@ public class CodeVisitor implements Visitor {
             fileWriter.write("\n\nint main() {\n");
             programOp.getBodyOp().accept(this);
 
-            if(!(programOp.getBodyOp().getStatOps().get(programOp.getBodyOp().getStatOps().size()-1) instanceof ReturnOp))
+            if (programOp.getBodyOp().getStatOps().size() == 0){
                 fileWriter.write("return 0;");
+            }else {
+                if(!(programOp.getBodyOp().getStatOps().get(programOp.getBodyOp().getStatOps().size()-1) instanceof ReturnOp))
+                    fileWriter.write("return 0;");
+            }
             fileWriter.write("\n}");
 
             fileWriter.close();
@@ -109,7 +113,7 @@ public class CodeVisitor implements Visitor {
                 varDeclOp.accept(this);
             });
             defDeclOp.getBodyOp().getStatOps().forEach(statOp -> {
-                statOp.accept(this);
+                    statOp.accept(this);
             });
             fileWriter.write("}\n");
         } catch (IOException e) {
@@ -223,7 +227,12 @@ public class CodeVisitor implements Visitor {
                             fileWriter.write("strcpy(" + ids.get(i).getValue() + ", " + ConvertExprToString(exprs.get(i))+ ");\n");
                         }
                     }else {
-                        fileWriter.write( ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
+                        if(symbolTableLocal.lookUpWithKind(ids.get(i).getValue(),"Var").getProperties().equals("Ref")){
+                            fileWriter.write("*" + ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
+                        } else {
+                            fileWriter.write(ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
+                        }
+                        //fileWriter.write( ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -304,14 +313,44 @@ public class CodeVisitor implements Visitor {
         String tipoLatoDestro = getTypeOfOp(arithOp.getValueR());
 
         switch (arithOp.getName()){
-            case "AddOp":
-                if(tipoLatoSinistro.equals("STRING") && tipoLatoDestro.equals("STRING")){
-                    return "str_concat(" + primoOperando + ", " + secondoOperando + ")";
+            case "AddOp": //sistemare qui
+                if(tipoLatoSinistro.equals("STRING") || tipoLatoDestro.equals("STRING")){
+                    if(tipoLatoSinistro.equals("STRING")){
+                        if(tipoLatoDestro.equals("INT") || tipoLatoDestro.equals("BOOL")){
+                            return "str_concat(" + primoOperando + ", " + "integer_to_str("+ secondoOperando + "))";  // CONVERTI AD INT IL SECONDO OPERANDO
+                        } else if(tipoLatoDestro.equals("DOUBLE")) {
+                            return "str_concat(" + primoOperando + ", " + "real_to_str(" +secondoOperando + "))";  // CONVERTI A DOUBLE IL SECONDO OPERANDO
+                        } else {
+                            // string + string
+                            return "str_concat(" + primoOperando + ", " + secondoOperando + ")";
+                        }
+                    } else if(tipoLatoDestro.equals("STRING")){
+                        if(tipoLatoSinistro.equals("INT") || tipoLatoSinistro.equals("BOOL")){
+                            return "str_concat(" + "integer_to_str(" +primoOperando + "), " + secondoOperando + ")";  // CONVERTI AD INT IL PRIMO OPERANDO
+                        } else if(tipoLatoSinistro.equals("DOUBLE")){
+                            return "str_concat(" + "real_to_str(" +primoOperando + "), " + secondoOperando + ")";  // CONVERTI A DOUBLE IL PRIMO OPERANDO
+                        } else {
+                            return "str_concat(" + primoOperando + ", " + secondoOperando + ")";
+
+                        }
+                    }
+                }
+                if(symbolTableLocal.lookUpWithKind(primoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(primoOperando,"Var").getProperties().equals("Ref")){
+                    primoOperando = "*" + primoOperando;
+                }
+                if(symbolTableLocal.lookUpWithKind(secondoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(secondoOperando,"Var").getProperties().equals("Ref")){
+                    secondoOperando = "*" + secondoOperando;
                 }
                 return "("+primoOperando + " + " + secondoOperando +")";
             case "MinOp":
                 return "("+primoOperando + " - " + secondoOperando +")";
             case "TimesOp":
+                if(symbolTableLocal.lookUpWithKind(primoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(primoOperando,"Var").getProperties().equals("Ref")){
+                    primoOperando = "*" + primoOperando;
+                }
+                if(symbolTableLocal.lookUpWithKind(secondoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(secondoOperando,"Var").getProperties().equals("Ref")){
+                    secondoOperando = "*" + secondoOperando;
+                }
                 return "("+primoOperando + " * " + secondoOperando +")";
             case "DivOp":
                 return ""+primoOperando + " / " + secondoOperando +")";
@@ -323,7 +362,16 @@ public class CodeVisitor implements Visitor {
     public Object visit(BoolOp boolOp) {
         String primoOperando = (String) boolOp.getValueL().accept(this);
         String secondoOperando = (String) boolOp.getValueR().accept(this);
-
+        String tipoLatoSinistro = getTypeOfOp(boolOp.getValueL());
+        String tipoLatoDestro = getTypeOfOp(boolOp.getValueR());
+        if(!(tipoLatoSinistro.equals("STRING") && tipoLatoDestro.equals("STRING"))){
+            if(symbolTableLocal.lookUpWithKind(primoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(primoOperando,"Var").getProperties().equals("Ref")){
+                primoOperando = "*" + primoOperando;
+            }
+            if(symbolTableLocal.lookUpWithKind(secondoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(secondoOperando,"Var").getProperties().equals("Ref")){
+                secondoOperando = "*" + secondoOperando;
+            }
+        }
         switch (boolOp.getName()){
             case "AndOp":
                 return primoOperando + " && " + secondoOperando;
@@ -350,11 +398,30 @@ public class CodeVisitor implements Visitor {
 
         } */
         if(tipoLatoSinistro.equals("STRING") && tipoLatoDestro.equals("STRING")){
-            return "strcmp(" + ConvertExprToString(relOp.getValueL()) + ", " + ConvertExprToString(relOp.getValueR()) + ")";
+            if(relOp.getName().equals("EqOp")){
+                return "strcmp(" + ConvertExprToString(relOp.getValueL()) + ", " + ConvertExprToString(relOp.getValueR()) + ") == 0";
+            } else if(relOp.getName().equals("NeOp")){
+                return "strcmp(" + ConvertExprToString(relOp.getValueL()) + ", " + ConvertExprToString(relOp.getValueR()) + ") != 0";
+            } else if (relOp.getName().equals("GtOp")){
+                return "strcmp(" + ConvertExprToString(relOp.getValueL()) + ", " + ConvertExprToString(relOp.getValueR()) + ") > 0";
+            } else if (relOp.getName().equals("GeOp")){
+                return "strcmp(" + ConvertExprToString(relOp.getValueL()) + ", " + ConvertExprToString(relOp.getValueR()) + ") >= 0";
+            } else if (relOp.getName().equals("LtOp")){
+                return "strcmp(" + ConvertExprToString(relOp.getValueL()) + ", " + ConvertExprToString(relOp.getValueR()) + ") < 0";
+            } else if (relOp.getName().equals("LeOp")){
+                return "strcmp(" + ConvertExprToString(relOp.getValueL()) + ", " + ConvertExprToString(relOp.getValueR()) + ") <= 0";
+            }
+            //return "strcmp(" + ConvertExprToString(relOp.getValueL()) + ", " + ConvertExprToString(relOp.getValueR()) + ") == 0";
         }
         else {
             String primoOperando = (String) relOp.getValueL().accept(this);
             String secondoOperando = (String) relOp.getValueR().accept(this);
+            if(symbolTableLocal.lookUpWithKind(primoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(primoOperando,"Var").getProperties().equals("Ref")){
+                primoOperando = "*" + primoOperando;
+            }
+            if(symbolTableLocal.lookUpWithKind(secondoOperando,"Var")!=null && symbolTableLocal.lookUpWithKind(secondoOperando,"Var").getProperties().equals("Ref")){
+                secondoOperando = "*" + secondoOperando;
+            }
             switch (relOp.getName()){
                 case "GtOp":
                     return primoOperando + " > " + secondoOperando;
@@ -550,7 +617,7 @@ public class CodeVisitor implements Visitor {
                 if (i.get() > 0) {
                     toReturn.append(", "); // Aggiunge una virgola tra gli argomenti
                 }
-                if (pVarOp.isRef()) {
+                if (pVarOp.isRef() && !(symbolTableLocal.lookUpWithKind(funCallOpExpr.getParametri().get(i.get()).getName(), "Var").getType().getOutType().getName().equals("STRING"))) {
                     toReturn.append("&").append(funCallOpExpr.getParametri().get(i.get()).accept(this));
                 } else {
                     toReturn.append(funCallOpExpr.getParametri().get(i.get()).accept(this));
@@ -578,8 +645,12 @@ public class CodeVisitor implements Visitor {
                 if (i.get() > 0) {
                     toReturn.append(", "); // Aggiunge una virgola tra gli argomenti
                 }
-                if (pVarOp.isRef()) {
-                    toReturn.append("&").append(funCallOpStat.getParametri().get(i.get()).accept(this));
+                if (pVarOp.isRef() && !(symbolTableLocal.lookUpWithKind(funCallOpStat.getParametri().get(i.get()).getName(), "Var").getType().getOutType().getName().equals("STRING"))) {
+                    if(symbolTableLocal.lookUpWithKind(funCallOpStat.getParametri().get(i.get()).getName(), "Var").getProperties().equals("Ref")){
+                        toReturn.append(funCallOpStat.getParametri().get(i.get()).accept(this));
+                    } else {
+                        toReturn.append("&").append(funCallOpStat.getParametri().get(i.get()).accept(this));
+                    }
                 } else {
                     toReturn.append(funCallOpStat.getParametri().get(i.get()).accept(this));
                 }
@@ -631,7 +702,7 @@ public class CodeVisitor implements Visitor {
                     }
                     try {
                         String tipoPar = parDeclOp.getType().getName().toLowerCase().equals("string") ? "char*" : parDeclOp.getType().getName().toLowerCase() ;
-                        if(pVarOp.isRef())
+                        if(pVarOp.isRef() && !(tipoPar.equals("char*")))
                             fileWriter.write( tipoPar+ "* " + pVarOp.getId().getValue());
                         else
                             fileWriter.write(tipoPar+ " " + pVarOp.getId().getValue());
@@ -702,6 +773,11 @@ public class CodeVisitor implements Visitor {
                             new SymbolType(new Type(tipo2, false))
                     )
             );
+            if(tipo1.equals("STRING") || tipo2.equals("STRING")){
+                if(arithOp.getName().equals("AddOp")){
+                    return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.CONCATOP).getOutType().getName();
+                }
+            }
             return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.ARITHOP).getOutType().getName();
         } else if(expr instanceof BoolOp boolOp) {
             String tipo1 = getTypeOfOp(boolOp.getValueL());
