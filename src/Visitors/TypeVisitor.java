@@ -230,6 +230,9 @@ public class TypeVisitor implements Visitor{
             }
         }
 
+        if(arithOp.getName().equals("DivOp") && types.get(1).getOutType().getName().equals("INT") && types.get(0).getOutType().getName().equals("INT")){
+            return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.DIVOP);
+        }
         return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.ARITHOP);
     }
 

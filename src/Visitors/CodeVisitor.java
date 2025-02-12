@@ -119,6 +119,7 @@ public class CodeVisitor implements Visitor {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         return null;
     }
 
@@ -396,7 +397,9 @@ public class CodeVisitor implements Visitor {
     @Override
     public Object visit(RelOp relOp) {
         String tipoLatoSinistro = getTypeOfOp(relOp.getValueL());
+        System.out.println("Tipo lato sx: "+tipoLatoSinistro);
         String tipoLatoDestro = getTypeOfOp(relOp.getValueR());
+        System.out.println("Tipo lato dx: "+tipoLatoDestro);
         /*
         if(tipoLatoSinistro.equals("STRING") || tipoLatoDestro.equals("STRING")){
             // allora dobbiamo fare strcmp
@@ -773,7 +776,7 @@ public class CodeVisitor implements Visitor {
         if(expr instanceof Const c){
             return Const.getConstantType(c.getValue());
         } else if(expr instanceof ID id){
-            return symbolTableLocal.lookUpWithKind(id.getValue(), "Var").getType().getOutType().getName();
+            return symbolTableLocal.lookUpWithKind(id.getValue(), "Var").getType().getOutType().toString();
         } else if(expr instanceof FunCallOpExpr funCallOpExpr){
             return symbolTableLocal.lookUpWithKind(funCallOpExpr.getId().getValue(), "Funz").getType().getOutType().getName();
         } else if(expr instanceof ArithOp arithOp) {

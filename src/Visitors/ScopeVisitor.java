@@ -127,9 +127,8 @@ public class ScopeVisitor implements Visitor{
             stat.accept(this);
         });
 
-        // controllo la presenza di almeno un return
-        if(numeroReturnPerFunzione.get() != 1 && defDeclOp.getType().getName() != "Void"){
-            throw new Error("Non c'è nessun return nella funzione " + defDeclOp.getId().getValue());
+        if(!checkIfReturnExistInDef(defDeclOp.getBodyOp()) && !defDeclOp.getType().getName().equals("Void")){
+            throw new Error("Non esiste return nella funzione " + defDeclOp.getId().getValue());
         }
 
         symbolTableLocal = symbolTableFather;
