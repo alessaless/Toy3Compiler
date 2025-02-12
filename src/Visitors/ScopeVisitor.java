@@ -392,5 +392,20 @@ public class ScopeVisitor implements Visitor{
         ifThenElseOp.getBodyElse().accept(this);
         return null;
     }
+
+    private boolean checkIfReturnExistInDef(BodyOp bodyOp) {
+        for(int i = 0 ; i < bodyOp.getStatOps().size(); i++) {
+            if(bodyOp.getStatOps().get(i) instanceof ReturnOp){
+                return true;
+            } else if(bodyOp.getStatOps().get(i) instanceof IfThenOp){
+                return checkIfReturnExistInDef(((IfThenOp) bodyOp.getStatOps().get(i)).getBodyOp());
+            } else if(bodyOp.getStatOps().get(i) instanceof IfThenElseOp){
+                return checkIfReturnExistInDef(((IfThenElseOp) bodyOp.getStatOps().get(i)).getBodyIf()) && checkIfReturnExistInDef(((IfThenElseOp) bodyOp.getStatOps().get(i)).getBodyElse());
+            } else if(bodyOp.getStatOps().get(i) instanceof WhileOp){
+                return checkIfReturnExistInDef(((WhileOp) bodyOp.getStatOps().get(i)).getBody());
+            }
+        }
+        return false;
+    }
 }
 
