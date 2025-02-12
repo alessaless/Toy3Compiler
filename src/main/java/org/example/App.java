@@ -27,6 +27,7 @@ public class App {
             throw new Error("File mancante");
         }
         String filePath = args[0];
+        File file = new File(filePath);
         FileInputStream stream = new FileInputStream(filePath);
         Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         Lexer scanner = new Lexer(reader);
@@ -41,13 +42,13 @@ public class App {
         framePannello.add(treeView);
         framePannello.setVisible(true);
 
-        while (!scanner.yyatEOF()){
+        /* while (!scanner.yyatEOF()){
             p.debug_parse();
-        }
+        } */
 
         ((ProgramOp) root).accept(new ScopeVisitor());
         ((ProgramOp) root).accept(new TypeVisitor());
-        ((ProgramOp) root).accept(new CodeVisitor("prova"));
+        ((ProgramOp) root).accept(new CodeVisitor(file.getName().substring(0, file.getName().lastIndexOf('.'))));
     }
 
 }

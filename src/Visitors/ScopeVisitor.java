@@ -127,6 +127,7 @@ public class ScopeVisitor implements Visitor{
             stat.accept(this);
         });
 
+
         if(!checkIfReturnExistInDef(defDeclOp.getBodyOp()) && !defDeclOp.getType().getName().equals("Void")){
             throw new Error("Non esiste return nella funzione " + defDeclOp.getId().getValue());
         }
@@ -398,11 +399,14 @@ public class ScopeVisitor implements Visitor{
             if(bodyOp.getStatOps().get(i) instanceof ReturnOp){
                 return true;
             } else if(bodyOp.getStatOps().get(i) instanceof IfThenOp){
-                return checkIfReturnExistInDef(((IfThenOp) bodyOp.getStatOps().get(i)).getBodyOp());
+                if(bodyOp.getStatOps().size()-1 == i)
+                    return checkIfReturnExistInDef(((IfThenOp) bodyOp.getStatOps().get(i)).getBodyOp());
             } else if(bodyOp.getStatOps().get(i) instanceof IfThenElseOp){
-                return checkIfReturnExistInDef(((IfThenElseOp) bodyOp.getStatOps().get(i)).getBodyIf()) && checkIfReturnExistInDef(((IfThenElseOp) bodyOp.getStatOps().get(i)).getBodyElse());
+                if(bodyOp.getStatOps().size()-1 == i)
+                    return checkIfReturnExistInDef(((IfThenElseOp) bodyOp.getStatOps().get(i)).getBodyIf()) && checkIfReturnExistInDef(((IfThenElseOp) bodyOp.getStatOps().get(i)).getBodyElse());
             } else if(bodyOp.getStatOps().get(i) instanceof WhileOp){
-                return checkIfReturnExistInDef(((WhileOp) bodyOp.getStatOps().get(i)).getBody());
+                if(bodyOp.getStatOps().size()-1 == i)
+                    return checkIfReturnExistInDef(((WhileOp) bodyOp.getStatOps().get(i)).getBody());
             }
         }
         return false;

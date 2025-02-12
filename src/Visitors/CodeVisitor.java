@@ -397,9 +397,7 @@ public class CodeVisitor implements Visitor {
     @Override
     public Object visit(RelOp relOp) {
         String tipoLatoSinistro = getTypeOfOp(relOp.getValueL());
-        System.out.println("Tipo lato sx: "+tipoLatoSinistro);
         String tipoLatoDestro = getTypeOfOp(relOp.getValueR());
-        System.out.println("Tipo lato dx: "+tipoLatoDestro);
         /*
         if(tipoLatoSinistro.equals("STRING") || tipoLatoDestro.equals("STRING")){
             // allora dobbiamo fare strcmp

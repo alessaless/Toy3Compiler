@@ -381,11 +381,11 @@ class Lexer implements java_cup.runtime.Scanner {
     StringBuffer string = new StringBuffer();
         private Symbol symbol(int type) {
             Symbol s = new Symbol(type, yyline, yycolumn);
-            System.out.println("Token: " + sym.terminalNames[type] );
+            //System.out.println("Token: " + sym.terminalNames[type] );
             return s;
         }
         private Symbol symbol(int type, Object value) {
-            System.out.println("Token: " + sym.terminalNames[type] + ", Value: " + value.toString());
+            //System.out.println("Token: " + sym.terminalNames[type] + ", Value: " + value.toString());
             return new Symbol(type, yyline, yycolumn, value);
         }
 
