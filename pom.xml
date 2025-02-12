@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.example</groupId>
-  <artifactId>valletta-zoccola_es4TP</artifactId>
+  <artifactId>valletta-zoccola_es5tsc</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <properties>
@@ -63,6 +63,14 @@
     </sourceDirectory>
 
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <mainClass>main.java.org.example.App</mainClass>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>de.jflex</groupId>
         <artifactId>jflex-maven-plugin</artifactId>

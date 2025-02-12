@@ -22,7 +22,11 @@ import java.io.*;
 public class App {
     public static void main (String[] args) throws Exception {
         JTree tree;
-        String filePath = "provaType.txt";
+        //String filePath = "provaType.txt";
+        if(args.length != 1){
+            throw new Error("File mancante");
+        }
+        String filePath = args[0];
         FileInputStream stream = new FileInputStream(filePath);
         Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         Lexer scanner = new Lexer(reader);
