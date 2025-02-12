@@ -1,22 +1,17 @@
 program
-a:int;
-scelta:int;
-    def sommaIntera(a:int):int {
-        vlahovic:int;
-        if(vlahovic == 1) then {
-                            allegri:int;
-        }
+    def sommaIntera(a:int; b:int):int {
         return a + b;
     }
 
-    def sommaDouble(a,c:double; b:int):double {
+    def sommaDouble(a:double; b:double):double {
         return a + b;
     }
 
     def sottrazioneIntera(a:int; b:int):int {
         return a - b;
     }
-
+    y = 7: int;
+z:int;
     def sottrazioneDouble(a:double; b:double):double {
         return a - b;
     }
@@ -38,8 +33,10 @@ scelta:int;
 
     def inputDouble(ref a:int) : double {
         "Inserisci numero double:" !>>;
-        a <<;
+        return 1.0;
     }
+    a:double;
+    b:double;
 
 begin
     a | b | risultatointero: int;
@@ -50,15 +47,14 @@ begin
     while(scelta <> 0) do {
     prova := 5;
         if(scelta == 1) then {
-            cacca := 5;
             a := inputIntero();
             b := inputIntero();
             risultatointero := sommaIntera(a, b);
             risultatointero !>>;
         }
         if(scelta == 2) then {
-            inputDouble(c);
-            inputDouble(d);
+            inputDouble(a);
+            inputDouble(b);
             risultatodouble := sommaDouble(c, d);
             risultatodouble !>>;
         }
@@ -69,8 +65,8 @@ begin
             risultatointero !>>;
         }
         if(scelta == 4) then {
-            c := inputDouble();
-            d := inputDouble();
+            c := inputDouble(a);
+            d := inputDouble(b);
             risultatodouble := sottrazioneDouble(c, d);
             risultatodouble !>>;
         } else {
@@ -78,6 +74,7 @@ begin
         }
         stampaMenuScelta();
         scelta << ;
+        rosario := 10+10;
     }
 
 end

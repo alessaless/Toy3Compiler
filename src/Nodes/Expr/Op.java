@@ -1,6 +1,9 @@
 package Nodes.Expr;
 
-public class Op extends Expr{
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
+
+public class Op extends Expr implements NodeVisitor {
     String name;
 
     public Op (String name){
@@ -16,4 +19,8 @@ public class Op extends Expr{
         this.name = name;
     }
 
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
+    }
 }

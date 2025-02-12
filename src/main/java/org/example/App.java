@@ -1,8 +1,10 @@
 package main.java.org.example;
 
 import Nodes.ProgramOp;
+import Visitors.CodeVisitor;
 import Visitors.NodeVisitor;
 import Visitors.ScopeVisitor;
+import Visitors.TypeVisitor;
 import main.java.org.example.Lexer;
 import main.java.org.example.parser;
 
@@ -20,7 +22,7 @@ import java.io.*;
 public class App {
     public static void main (String[] args) throws Exception {
         JTree tree;
-        String filePath = "provaEs4.txt";
+        String filePath = "provaType.txt";
         FileInputStream stream = new FileInputStream(filePath);
         Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         Lexer scanner = new Lexer(reader);
@@ -40,6 +42,8 @@ public class App {
         }
 
         ((ProgramOp) root).accept(new ScopeVisitor());
+        ((ProgramOp) root).accept(new TypeVisitor());
+        ((ProgramOp) root).accept(new CodeVisitor("prova"));
     }
 
 }

@@ -10,7 +10,7 @@ import Nodes.*;
 terminal PROGRAM, BEGIN, END, SEMI, COLON, INT, BOOL, DOUBLE, STRING, CHAR;
 terminal COMMA, DEF, LPAR, RPAR, LBRAC, RBRAC, IN, OUT, OUTNL, PIPE, ASSIGNDECL;
 terminal PLUS, MINUS, TIMES, DIV, ASSIGN, GT, GE, LT, LE, EQ, NE, NOT, AND, OR, REF;
-terminal TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO;
+terminal TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO, PAR;
 
 /* Simboli non terminali
 non terminal Program, Decls, VarDecls, VarDecl, VarsOptInit, TypeOrConstant;
@@ -46,17 +46,19 @@ non terminal Stat Stat;
 non terminal ArrayList<ID> Vars;
 non terminal ArrayList<Expr> Exprs;
 non terminal Expr Expr;
-non terminal Op ArithOp;
-non terminal Op BoolOp;
-non terminal Op RelOp;
+//non terminal Op ArithOp;
+//non terminal Op BoolOp;
+//non terminal Op RelOp;
 non terminal FunCallOp FunCall;
 
-precedence left PLUS, MINUS;
-precedence left TIMES, DIV;
-precedence left AND, OR;
-precedence left GT, GE, LT, LE, EQ, NE;
-precedence right NOT;
-precedence right MINUS; // Operatore unario
+
+precedence right NOT; // NOT ha la precedenza più alta
+precedence left AND;  // AND ha precedenza inferiore
+precedence left OR;   // OR ha la precedenza più bassa
+precedence left PLUS, MINUS; // Somma e sottrazione
+precedence left TIMES, DIV; // Moltiplicazione e divisione
+precedence left GT, GE, LT, LE, EQ, NE; // Operatori relazionali
+//precedence left LPAR, RPAR;
 
 /* Inizio del programma */
 Program ::= PROGRAM Decls:decl BEGIN VarDecls:varDecls Statements:statements END
@@ -173,30 +175,23 @@ Exprs ::= Expr:expr1 COMMA Exprs:exprList {:RESULT = new ArrayList<Expr>();
 FunCall ::= ID:value LPAR Exprs:exprList RPAR {: RESULT = new FunCallOp(new ID(value), exprList); :}
           | ID:value LPAR RPAR {:RESULT = new FunCallOp(new ID(value),new ArrayList<Expr>()); :} ;
 
-Expr ::= Expr:expr1 ArithOp:arithOp Expr:expr2 {:RESULT = new ArithOp(arithOp, expr1, expr2); :}
-                | Expr:expr1 BoolOp:boolOp Expr:expr2 {: RESULT = new BoolOp(boolOp, expr1, expr2); :}
-                | Expr:expr1 RelOp:relop Expr:expr2 {: RESULT = new RelOp(relop, expr1, expr2); :}
-                | LPAR Expr:expr RPAR {: RESULT = expr; :}
-                | MINUS Expr:expr {: RESULT = new UnaryOp("MinusOp", expr); :}
-                | NOT Expr:expr {: RESULT = new UnaryOp("NotOp", expr); :}
-                | ID:value {: RESULT = new ID(value); :}
-                | FunCall:funCall {: FunCallOp tmp = funCall;
-                                     RESULT = new FunCallOpExpr(tmp.getId(),tmp.getParametri());
-                                    :}
-                | Constant:constant {: RESULT = constant; :} ;
-
-/* Operatori */
-ArithOp ::= PLUS {: RESULT = new Op("AddOp"); :}
-          | MINUS {: RESULT =  new Op("MinOp"); :}
-          | TIMES {: RESULT =  new Op("TimesOp"); :}
-          | DIV {: RESULT =  new Op("DivOp"); :} ;
-
-BoolOp ::= AND {: RESULT = new Op("AndOp");:}
-         | OR {: RESULT = new Op("OrOp"); :} ;
-
-RelOp ::= GT {: RESULT = new Op("GtOp"); :}
-        | GE {: RESULT = new Op("GeOp"); :}
-        | LT {: RESULT = new Op("LtOp"); :}
-        | LE {: RESULT = new Op("LeOp");:}
-        | EQ {: RESULT = new Op("EqOp"); :}
-        | NE {: RESULT = new Op("NeOp"); :} ;
+Expr ::= Expr:expr1 PLUS Expr:expr2 {: RESULT = new ArithOp("AddOp", expr1, expr2); :}
+       | Expr:expr1 MINUS Expr:expr2 {: RESULT = new ArithOp("MinusOp", expr1, expr2); :}
+       | Expr:expr1 TIMES Expr:expr2 {: RESULT = new ArithOp("TimesOp", expr1, expr2); :}
+       | Expr:expr1 DIV Expr:expr2 {: RESULT = new ArithOp("DivOp", expr1, expr2); :}
+       | Expr:expr1 AND Expr:expr2 {: RESULT = new BoolOp("AndOp", expr1, expr2); :}
+       | Expr:expr1 OR Expr:expr2 {: RESULT = new BoolOp("OrOp", expr1, expr2); :}
+       | Expr:expr1 GT Expr:expr2 {: RESULT = new RelOp("GtOp", expr1, expr2); :}
+       | Expr:expr1 GE Expr:expr2 {: RESULT = new RelOp("GeOp", expr1, expr2); :}
+       | Expr:expr1 LT Expr:expr2 {: RESULT = new RelOp("LtOp", expr1, expr2); :}
+       | Expr:expr1 LE Expr:expr2 {: RESULT = new RelOp("LeOp", expr1, expr2); :}
+       | Expr:expr1 EQ Expr:expr2 {: RESULT = new RelOp("EqOp", expr1, expr2); :}
+       | Expr:expr1 NE Expr:expr2 {: RESULT = new RelOp("NeOp", expr1, expr2); :}
+       | LPAR Expr:expr RPAR {: RESULT = expr; :}
+       | MINUS Expr:expr {: RESULT = new UnaryOp("MinusOp", expr); :}
+       | NOT Expr:expr {: RESULT = new UnaryOp("NotOp", expr); :}
+       | ID:value {: RESULT = new ID(value); :}
+       | FunCall:funCall {: FunCallOp tmp = funCall;
+                           RESULT = new FunCallOpExpr(tmp.getId(), tmp.getParametri());
+                         :}
+       | Constant:constant {: RESULT = constant; :} ;

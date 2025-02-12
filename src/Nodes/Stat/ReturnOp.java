@@ -2,8 +2,10 @@ package Nodes.Stat;
 
 import java.util.ArrayList;
 import Nodes.Expr.Expr;
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
 
-public class ReturnOp extends Stat{
+public class ReturnOp extends Stat implements NodeVisitor {
     Expr expr;
 
     public ReturnOp(Expr expr){
@@ -13,12 +15,16 @@ public class ReturnOp extends Stat{
         this.expr = expr;
     }
 
-    public Expr getExprList() {
+    public Expr getExpr() {
         return expr;
     }
 
-    public void setExprList(Expr expr) {
+    public void setExpr(Expr expr) {
         this.expr = expr;
     }
 
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
+    }
 }

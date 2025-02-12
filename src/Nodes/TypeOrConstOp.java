@@ -35,4 +35,11 @@ public class TypeOrConstOp extends DefaultMutableTreeNode {
     public void setConstant(Const constant) {
         this.constant = constant;
     }
+
+    public boolean isConstant(){
+        if(this.constant == null){
+            return false;
+        }
+        return true;
+    }
 }

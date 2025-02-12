@@ -1,0 +1,47 @@
+program
+
+// Dichiarazione variabili globali
+n | risultato: int;
+continua: bool;
+
+// Funzione ricorsiva per il calcolo di Fibonacci
+def fibonacci(n: int): int
+{
+    if (n <= 0) then {
+        return 0;
+    }
+    else {
+        if (n == 1) then {
+            return 1;
+        }
+        else {
+            return fibonacci(n - 1) + fibonacci(n - 2);
+        }
+    }
+}
+
+def prova():int {
+    "prova" >>;
+}
+
+begin
+    continua := true;
+    
+    while (continua) do {
+        "Inserisci un numero intero per calcolare Fibonacci: " >>;
+        n <<;
+        
+        if (n < 0) then {
+            "Il numero deve essere >= 0!" !>>;
+        }
+        else {
+            risultato := fibonacci(n);
+            "Il valore di Fibonacci per " , n , " e' " , risultato !>>;
+        }
+        
+        "Vuoi continuare? (1 yes / 0 no): " >>;
+        continua <<;
+    }
+    
+    "Programma terminato." !>>;
+end

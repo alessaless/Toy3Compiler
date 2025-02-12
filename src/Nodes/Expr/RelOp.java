@@ -1,12 +1,25 @@
 package Nodes.Expr;
 
-public class RelOp extends Op{
+import Visitors.NodeVisitor;
+import Visitors.Visitor;
+
+public class RelOp extends Op implements NodeVisitor {
     Expr valueL;
     Expr valueR;
 
     public RelOp (Op op, Expr valueL, Expr valueR){
-        super("RelOp");
+        super(op.getName());
         super.add(op);
+        super.add(valueL);
+        super.add(valueR);
+
+        this.valueL = valueL;
+        this.valueR = valueR;
+    }
+
+    public RelOp (String name, Expr valueL, Expr valueR){
+        super(name);
+        //super.add(op);
         super.add(valueL);
         super.add(valueR);
 
@@ -29,4 +42,9 @@ public class RelOp extends Op{
     public void setValueR(Expr valueR) {
         this.valueR = valueR;
     }
+    @Override
+    public Object accept(Visitor visitor) {
+        return visitor.visit(this);
+    }
+
 }

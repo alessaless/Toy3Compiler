@@ -44,4 +44,14 @@ public class SymbolRow {
     public void setProperties(String properties){
         this.properties = properties;
     }
+
+    @Override
+    public String toString() {
+        return "SymbolRow{" +
+                "name='" + name + '\'' +
+                ", Kind='" + Kind + '\'' +
+                ", type=" + type +
+                ", properties='" + properties + '\'' +
+                '}';
+    }
 }
