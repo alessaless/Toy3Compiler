@@ -355,6 +355,10 @@ public class ScopeVisitor implements Visitor{
             }
             // Process each ID
         });
+
+        for (Expr expr : assignOp.getExprList()) {
+            expr.accept(this);
+        }
         return null;
     }
 

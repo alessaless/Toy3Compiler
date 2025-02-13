@@ -216,6 +216,7 @@ public class CodeVisitor implements Visitor {
                         throw new RuntimeException(e);
                     }
                 }
+                symbolTableLocal.lookUpWithKind(ids.get(i).getValue(), "Var").setProperties("");
             } else {
                 // solo assegnamento
                 try {
