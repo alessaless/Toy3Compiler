@@ -425,9 +425,13 @@ public class TypeVisitor implements Visitor{
         //Foreach che controlla il tipo dei parametri di pardeclop con funcallop
         quellachemiserve.get().getParDeclOps().forEach(parDeclOp -> {
             parDeclOp.getPvarOps().forEach(pVarOp -> {
-                if(parDeclOp.getType().getName().equals(tipiParametriChePasso.get(i.get()).getOutType().getName())){
+                if (parDeclOp.getType().getName().equals(tipiParametriChePasso.get(i.get()).getOutType().getName())) {
                     i.getAndIncrement();
-                } else {
+                } else if (parDeclOp.getType().getName().equals("INT") && tipiParametriChePasso.get(i.get()).getOutType().getName().equals("DOUBLE")) {
+                    i.getAndIncrement();
+                } else if (parDeclOp.getType().getName().equals("DOUBLE") && tipiParametriChePasso.get(i.get()).getOutType().getName().equals("INT")){
+                    i.getAndIncrement();
+                }else {
                     throw new Error("Stai passando un tipo di parametro sbagliato");
                 }
             });
