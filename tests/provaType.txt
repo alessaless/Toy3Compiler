@@ -1,9 +1,0 @@
-program
-
-def somma(x:int):int{
-    return x;
-}
-
-begin
-
-end
