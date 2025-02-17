@@ -3,9 +3,15 @@ import Nodes.Decl.*;
 import Nodes.Expr.*;
 import Nodes.Stat.*;
 import Nodes.*;
+import java.util.Collections;
 
 
 
+//per fare il reverse di un array
+/*
+ArrayList<Classe> array = new ArrayList<>(ArrayCheVoglioCopiare);
+Collections.reverse(array)
+*/
 /* Simboli terminali (token dal lexer) */
 terminal PROGRAM, BEGIN, END, SEMI, COLON, INT, BOOL, DOUBLE, STRING, CHAR;
 terminal COMMA, DEF, LPAR, RPAR, LBRAC, RBRAC, IN, OUT, OUTNL, PIPE, ASSIGNDECL;
