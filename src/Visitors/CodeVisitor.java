@@ -505,6 +505,13 @@ public class CodeVisitor implements Visitor {
                             throw new RuntimeException(e);
                         }
                         break;
+                    case "char":
+                        try {
+                            fileWriter.write("%c" );
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        break;
                 }
             });
             fileWriter.write("\", ");
@@ -514,6 +521,7 @@ public class CodeVisitor implements Visitor {
                     case "int":
                     case "bool":
                     case "double":
+                    case "char":
                         try {
                             if(readOp.getVariabili().get(readOp.getVariabili().size()-1).equals(var))
                                 fileWriter.write("&" + var.getValue() + ");\n");
@@ -764,6 +772,13 @@ public class CodeVisitor implements Visitor {
             case "double":
                 try {
                     fileWriter.write("%f");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case "char":
+                try {
+                    fileWriter.write("%c");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
