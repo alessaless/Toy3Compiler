@@ -15,6 +15,7 @@ import SymbolTable.SymbolType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class ScopeVisitor implements Visitor{
     static SymbolTable symbolTableLocal;
@@ -72,7 +73,7 @@ public class ScopeVisitor implements Visitor{
                 numeroReturnPerFunzione.getAndIncrement();
             }
             if(numeroReturnPerFunzione.get() > 1){
-                throw new Error("Stai cercando di ritornare più di un valore nella funzione ");
+                throw new Error("Stai cercando di ritornare più di un valore in un body ");
             }
             stat.accept(this);
         });
@@ -258,15 +259,17 @@ public class ScopeVisitor implements Visitor{
     public Object visit(VarDeclOp varDeclOp) {
         if(varDeclOp.getVarsOptInitOpList().size()>1){
             if(varDeclOp.getTypeOrConstOp().isConstant()){
-                throw new Error("Stai assegnando una costante a più variabili");
-            }
+                throw new Error("Stai assegnando una costante alle variabili " +
+                        varDeclOp.getVarsOptInitOpList().stream()
+                                .map(varsOptInitOp -> varsOptInitOp.getId().getValue())
+                                .collect(Collectors.joining(", ")));}
         }
 
         Type t = varDeclOp.getTypeOrConstOp().getType();
         varDeclOp.getVarsOptInitOpList().forEach(decl -> {
             if(decl.getExpr() != null){
                 if(varDeclOp.getTypeOrConstOp().isConstant()){
-                    throw new Error("Non puoi assegnare una variabile dichiarata tramite il tipo di una costante");
+                    throw new Error("Stai assegnando il tipo della costante "+varDeclOp.getTypeOrConstOp().getConstant().getValue() + " alla variabile " + decl.getId().getValue() + " che è già inizializzata");
                 }
             }
             try {

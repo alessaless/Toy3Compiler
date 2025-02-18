@@ -55,8 +55,7 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
             this.symbolRows.add(symbolRow);
         } else {
             if(lookUp(symbolRow.getName()).getKind().equals(symbolRow.getKind())){
-                System.out.println("sto confrontando: " + lookUp(symbolRow.getName()).getName() + " con " + symbolRow.getName());
-                throw new Error("Variable already declared");
+                throw new Error("Variabile "+ symbolRow.getName() +" già dichiarata");
             } else {
                 this.symbolRows.add(symbolRow);
             }
@@ -69,7 +68,7 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
             if(this.father != null){
                 return this.father.lookUp(name);
             } else {
-                throw new Error("Variable not declared");
+                throw new Error("Variabile " + name + " non è stata dichiarata");
             }
         } else {
             return this.symbolRows.stream().filter(symbolRow -> symbolRow.getName().equals(name)).findFirst().get();
@@ -133,7 +132,7 @@ public class SymbolTable extends HashMap<String, ArrayList<SymbolRow>> {
         else if (this.father != null)
             this.father.addTypeToId(name, symbolType);
         else
-            throw new RuntimeException("L'id " + name + " non è stato dichiarato pt2");
+            throw new RuntimeException("L'id " + name + " non è stato dichiarato");
     }
 
     //voglio una funzione che mi restituisce la tabella dei simboli dato in input una certa SymbolRow

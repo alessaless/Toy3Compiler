@@ -828,7 +828,6 @@ public class CodeVisitor implements Visitor {
     }
 
     private void concatOp(Expr expr) throws IOException {
-        System.out.println("siamo in concatOp");
         // Se è un'operazione binaria
         if(expr instanceof ArithOp arithOp){
             if(arithOp.getName().equals("AddOp")){

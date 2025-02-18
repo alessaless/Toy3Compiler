@@ -39,7 +39,7 @@ public class TypeVisitor implements Visitor{
             if(returnOp != null){
                 SymbolType t = (SymbolType) returnOp.getExpr().accept(this);
                 if(!t.getOutType().getName().toLowerCase().equals("int")) {
-                    throw new Error("Il main deve restituire un intero.");
+                    throw new Error("Il costrutto begin-end deve restituire un intero.");
                 }
             }
         }
@@ -110,12 +110,12 @@ public class TypeVisitor implements Visitor{
     @Override
     public Object visit(AssignOp assignOp) {
         if(assignOp.getIdList().size() != assignOp.getExprList().size()){
-            throw new Error("Stai assegnando un numero diverso di espressioni ad un numero diverso di ID");
+            throw new Error("Stai assegnando un numero diverso di espressioni ("+assignOp.getExprList().size()+") ad un numero diverso di ID ("+assignOp.getIdList().size()+")");
         }
         if (assignOp.getExprList().size() > 1) {
             for (var expr : assignOp.getExprList()) {
-                if (expr instanceof FunCallOpExpr) {
-                    throw new Error("Non puoi inserire una chiamata a una funzione in un'assegnazione multipla");
+                if (expr instanceof FunCallOpExpr funCallOpExpr) {
+                    throw new Error("Stai inserendo la chiamata alla funzione "+ funCallOpExpr.getId().getValue() +" in un'assegnazione multipla");
                 }
             }
         }
@@ -129,7 +129,7 @@ public class TypeVisitor implements Visitor{
             }else{
                 if(!symbolTableLocal.returnTypeOfId(id.getValue()).getOutType().getName().equals(types.get(assignOp.getIdList().indexOf(id)).getOutType().getName())){
                     if(!(symbolTableLocal.returnTypeOfId(id.getValue()).getOutType().getName().equals("DOUBLE") && types.get(assignOp.getIdList().indexOf(id)).getOutType().getName().equals("INT"))){
-                        throw new Error("Stai assegnando un tipo diverso da quello dichiarato");
+                        throw new Error("Stai assegnando un tipo diverso da quello dichiarato alla variabile "+id.getValue());
                     }
                 }
             }
@@ -226,7 +226,7 @@ public class TypeVisitor implements Visitor{
             if (arithOp.getName().equals("AddOp")) {
                 return OpTableCombinations.checkCombination(types, OpTableCombinations.EnumOpTable.CONCATOP);
             } else {
-                throw new Error("Operazione non consentita su stringhe");
+                throw new Error("Sulle stringhe è consetita solo l'operazione di concatenazione (+)");
             }
         }
 
@@ -241,7 +241,7 @@ public class TypeVisitor implements Visitor{
         ArrayList<SymbolType> types = new ArrayList<>();
         if(boolOp.getValueL() instanceof ID){
             if(!symbolTableLocal.lookUpBoolean(((ID) boolOp.getValueL()).getValue())){
-                throw new Error("Variabile non dichiarata" + ((ID) boolOp.getValueL()).getValue());
+                throw new Error("Variabile non dichiarata " + ((ID) boolOp.getValueL()).getValue());
             }
             types.add((SymbolType) boolOp.getValueL().accept(this));
         } else if(boolOp.getValueL() instanceof BoolOp || boolOp.getValueL() instanceof UnaryOp || boolOp.getValueL() instanceof Const || boolOp.getValueL() instanceof ArithOp || boolOp.getValueL() instanceof RelOp || boolOp.getValueL() instanceof FunCallOpExpr){
@@ -250,7 +250,7 @@ public class TypeVisitor implements Visitor{
         }
         if(boolOp.getValueR() instanceof ID) {
             if (!symbolTableLocal.lookUpBoolean(((ID) boolOp.getValueR()).getValue())) {
-                throw new Error("Variabile non dichiarata" + ((ID) boolOp.getValueR()).getValue());
+                throw new Error("Variabile non dichiarata " + ((ID) boolOp.getValueR()).getValue());
             }
             types.add((SymbolType) boolOp.getValueR().accept(this));
         } else if (boolOp.getValueR() instanceof BoolOp || boolOp.getValueR() instanceof UnaryOp || boolOp.getValueR() instanceof Const || boolOp.getValueR() instanceof ArithOp || boolOp.getValueR() instanceof RelOp || boolOp.getValueR() instanceof FunCallOpExpr){
@@ -264,7 +264,7 @@ public class TypeVisitor implements Visitor{
         ArrayList<SymbolType> types = new ArrayList<>();
         if(relOp.getValueL() instanceof ID){
             if(!symbolTableLocal.lookUpBoolean(((ID) relOp.getValueL()).getValue())){
-                throw new Error("Variabile non dichiarata" + ((ID) relOp.getValueL()).getValue());
+                throw new Error("Variabile non dichiarata " + ((ID) relOp.getValueL()).getValue());
             }
             types.add((SymbolType) relOp.getValueL().accept(this));;
         } else if(relOp.getValueL() instanceof RelOp || relOp.getValueL() instanceof UnaryOp || relOp.getValueL() instanceof Const || relOp.getValueL() instanceof BoolOp || relOp.getValueL() instanceof ArithOp || relOp.getValueL() instanceof FunCallOpExpr){
@@ -272,7 +272,7 @@ public class TypeVisitor implements Visitor{
         }
         if(relOp.getValueR() instanceof ID) {
             if (!symbolTableLocal.lookUpBoolean(((ID) relOp.getValueR()).getValue())) {
-                throw new Error("Variabile non dichiarata" + ((ID) relOp.getValueR()).getValue());
+                throw new Error("Variabile non dichiarata " + ((ID) relOp.getValueR()).getValue());
             }
             types.add((SymbolType) relOp.getValueR().accept(this));
         } else if (relOp.getValueR() instanceof RelOp || relOp.getValueR() instanceof UnaryOp || relOp.getValueR() instanceof Const || relOp.getValueR() instanceof BoolOp || relOp.getValueR() instanceof ArithOp || relOp.getValueR() instanceof FunCallOpExpr){
@@ -286,7 +286,7 @@ public class TypeVisitor implements Visitor{
         ArrayList<SymbolType> types = new ArrayList<>();
         if(unaryOp.getValue() instanceof ID){
             if(!symbolTableLocal.lookUpBoolean(((ID) unaryOp.getValue()).getValue())){
-                throw new Error("Variabile non dichiarata" + ((ID) unaryOp.getValue()).getValue());
+                throw new Error("Variabile non dichiarata " + ((ID) unaryOp.getValue()).getValue());
             }
             types.add((SymbolType) unaryOp.getValue().accept(this));;
         } else if(unaryOp.getValue() instanceof UnaryOp || unaryOp.getValue() instanceof ArithOp || unaryOp.getValue() instanceof Const || unaryOp.getValue() instanceof BoolOp || unaryOp.getValue() instanceof RelOp || unaryOp.getValue() instanceof FunCallOpExpr){
@@ -317,7 +317,7 @@ public class TypeVisitor implements Visitor{
             if(expr instanceof FunCallOpExpr funcall){
                 Type t = symbolTableLocal.lookUpWithKind(funcall.getId().getValue(),"Funz").getType().getOutType();
                 if(t.isVoid()){
-                    throw new Error("Stai cercando di stampare una funzione void");
+                    throw new Error("Stai cercando di stampare il valore della funzione " +funcall.getId().getValue()+" che è di tipo void");
                 }
             }
         });
@@ -351,7 +351,7 @@ public class TypeVisitor implements Visitor{
         });
 
         if(totParametri.get() != funCallOpExpr.getParametri().size()){
-            throw new Error("Stai passando un numero diverso di parametri alla funzione");
+            throw new Error("Stai passando un numero diverso di parametri alla funzione "+funCallOpExpr.getId().getValue());
         }
 
 
@@ -367,7 +367,7 @@ public class TypeVisitor implements Visitor{
                 if(parDeclOp.getType().getName().equals(tipiParametriChePasso.get(i.get()).getOutType().getName())){
                     i.getAndIncrement();
                 } else {
-                    throw new Error("Stai passando un tipo di parametro sbagliato");
+                    throw new Error("Stai passando un tipo di parametro sbagliato alla funzione " + quellachemiserve.get().getId().getValue());
                 }
             });
         });
@@ -382,10 +382,10 @@ public class TypeVisitor implements Visitor{
                         if (symbolTableLocal.lookUpWithKind(idVar.getValue(), "Var") != null) {
                             j.getAndIncrement();
                         } else {
-                            throw new Error("Stai passando per riferimento qualcosa che non è una variabile");
+                            throw new Error("Stai passando per riferimento qualcosa che non è una variabile alla funzione " + funCallOpExpr.getId().getValue());
                         }
                     } else {
-                        throw new Error("Stai passando per riferimento qualcosa che non è una variabile");
+                        throw new Error("Stai passando per riferimento qualcosa che non è una variabile alla funzione " + funCallOpExpr.getId().getValue());
                     }
                 }
             });
@@ -411,7 +411,7 @@ public class TypeVisitor implements Visitor{
         });
 
         if(totParametri.get() != funCallOpStat.getParametri().size()){
-            throw new Error("Stai passando un numero diverso di parametri alla funzione");
+            throw new Error("Stai passando un numero diverso di parametri alla funzione " + quellachemiserve.get().getId().getValue());
         }
 
 
@@ -432,7 +432,7 @@ public class TypeVisitor implements Visitor{
                 } else if (parDeclOp.getType().getName().equals("DOUBLE") && tipiParametriChePasso.get(i.get()).getOutType().getName().equals("INT")){
                     i.getAndIncrement();
                 }else {
-                    throw new Error("Stai passando un tipo di parametro sbagliato");
+                    throw new Error("Stai passando un tipo di parametro sbagliato alla funzione " + funCallOpStat.getId().getValue());
                 }
             });
         });
@@ -447,10 +447,10 @@ public class TypeVisitor implements Visitor{
                         if (symbolTableLocal.lookUpWithKind(idVar.getValue(), "Var") != null) {
                             j.getAndIncrement();
                         } else {
-                            throw new Error("Stai passando per riferimento qualcosa che non è una variabile");
+                            throw new Error("Stai passando per riferimento qualcosa che non è una variabile alla funzione " + funCallOpStat.getId().getValue());
                         }
                     } else {
-                        throw new Error("Stai passando per riferimento qualcosa che non è una variabile");
+                        throw new Error("Stai passando per riferimento qualcosa che non è una variabile " + funCallOpStat.getId().getValue());
                     }
                 }
             });
