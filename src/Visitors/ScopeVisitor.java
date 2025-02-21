@@ -342,7 +342,40 @@ public class ScopeVisitor implements Visitor{
     }
 
     @Override
+    public Object visit(LetOp letOp) {
+        // creo tab dei simb per il nodo
+        SymbolTable symbolTableFather = symbolTableLocal;
+        SymbolTable symbolTable = new SymbolTable(symbolTableLocal, "LetOpSymbolTable", new ArrayList<SymbolRow>());
+
+        if (letOp.getSymbolTable() == null) {
+            letOp.setSymbolTable(symbolTable);
+        }
+        symbolTableLocal = letOp.getSymbolTable();
+
+        letOp.getVarDeclOp().forEach(varDeclOp -> {
+            varDeclOp.accept(this);
+        });
+
+        letOp.getStatements().forEach(stat -> {
+            stat.accept(this);
+        });
+
+        letOp.getExpr().accept(this);
+
+        symbolTableLocal = symbolTableFather;
+        return null;
+    }
+
+    @Override
     public Object visit(AssignOp assignOp) {
+        if(assignOp.getIdList().size()>1){
+            assignOp.getExprList().forEach(expr -> {
+                if(expr instanceof LetOp){
+                    throw new Error("Il costrutto letop non prevede l'assegnazione multipla");
+                }
+            });
+        }
+
         assignOp.getIdList().forEach(id -> {
             if(symbolTableLocal.lookUpWithKind(id.getValue(), "Var") == null){
                 SymbolRow row = new SymbolRow(
@@ -356,7 +389,6 @@ public class ScopeVisitor implements Visitor{
                     throw new RuntimeException(e);
                 }
             }
-            // Process each ID
         });
 
         for (Expr expr : assignOp.getExprList()) {

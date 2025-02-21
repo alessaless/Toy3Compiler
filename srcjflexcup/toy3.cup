@@ -16,7 +16,7 @@ Collections.reverse(array)
 terminal PROGRAM, BEGIN, END, SEMI, COLON, INT, BOOL, DOUBLE, STRING, CHAR;
 terminal COMMA, DEF, LPAR, RPAR, LBRAC, RBRAC, IN, OUT, OUTNL, PIPE, ASSIGNDECL;
 terminal PLUS, MINUS, TIMES, DIV, ASSIGN, GT, GE, LT, LE, EQ, NE, NOT, AND, OR, REF;
-terminal TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO, PAR;
+terminal TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO, PAR, LET, GIVEN, IS;
 
 /* Simboli non terminali
 non terminal Program, Decls, VarDecls, VarDecl, VarsOptInit, TypeOrConstant;
@@ -163,7 +163,7 @@ Stat ::= Vars:vars IN SEMI {:RESULT = new ReadOp(vars);:}
        | IF LPAR Expr:expr RPAR THEN Body:body1 ELSE Body:body2 {: RESULT = new IfThenElseOp(expr,body1,body2); :}
        | IF LPAR Expr:expr RPAR THEN Body:body1 {: RESULT = new IfThenOp(expr,body1); :}
        | WHILE LPAR Expr:expr RPAR DO Body:body {: RESULT = new WhileOp(expr,body); :}
-       | RETURN Expr:expr SEMI {: RESULT = new ReturnOp(expr); :};
+       | RETURN Expr:expr SEMI {: RESULT = new ReturnOp(expr); :} ;
 
 /* Espressioni */
 Vars ::= ID:id PIPE Vars:vars {: RESULT = new ArrayList<ID>();
@@ -200,4 +200,5 @@ Expr ::= Expr:expr1 PLUS Expr:expr2 {: RESULT = new ArithOp("AddOp", expr1, expr
        | FunCall:funCall {: FunCallOp tmp = funCall;
                            RESULT = new FunCallOpExpr(tmp.getId(), tmp.getParametri());
                          :}
-       | Constant:constant {: RESULT = constant; :} ;
+       | Constant:constant {: RESULT = constant; :}
+       | LET VarDecls:varDecls GIVEN Statements:statList IS Expr:expr {:RESULT = new LetOp(varDecls, statList, expr); :} ;

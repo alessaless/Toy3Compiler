@@ -458,4 +458,20 @@ public class TypeVisitor implements Visitor{
 
         return symbolTableLocal.returnTypeOfIdWithKind(funCallOpStat.getId().getValue(), "Funz");
     }
+
+    @Override
+    public Object visit(LetOp letOp) {
+
+        symbolTableLocal = letOp.getSymbolTable();
+
+        letOp.getVarDeclOp().forEach(varDeclOp -> {
+            varDeclOp.accept(this);
+        });
+
+        letOp.getStatements().forEach(stat -> {
+            stat.accept(this);
+        });
+
+        return letOp.getExpr().accept(this);
+    }
 }

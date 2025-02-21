@@ -84,6 +84,9 @@ CommentContent = ( [^*] | \*+ [^/*] )*
     "not"            { return symbol(sym.NOT); }
     "ref"            { return symbol(sym.REF); }
     "def"            { return symbol(sym.DEF); }
+    "let"            { return symbol(sym.LET); }
+    "given"            { return symbol(sym.GIVEN); }
+    "is"            { return symbol(sym.IS); }
     // Operatori e simboli
     "+"              { return symbol(sym.PLUS); }
     "-"              { return symbol(sym.MINUS); }

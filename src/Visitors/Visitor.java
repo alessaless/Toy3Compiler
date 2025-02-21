@@ -33,4 +33,5 @@ public interface Visitor {
     Object visit(FunCallOp funCallOp);
     Object visit(FunCallOpExpr funCallOpExpr);
     Object visit(FunCallOpStat funCallOpStat);
+    Object visit(LetOp letOp);
 }

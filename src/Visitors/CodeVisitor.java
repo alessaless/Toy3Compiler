@@ -211,7 +211,14 @@ public class CodeVisitor implements Visitor {
                     }
                 } else {
                     try {
-                        fileWriter.write(type.getName().toLowerCase() + " " + ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
+                        if(assignOp.getExprList().get(0) instanceof LetOp){
+                            fileWriter.write(type.getName().toLowerCase() + " " + ids.get(0).getValue()+";\n");
+                            String exprConvertita = (String) assignOp.getExprList().get(0).accept(this);
+                            fileWriter.write(ids.get(0).getValue() + "=" + exprConvertita + ";\n");
+                            fileWriter.write("}\n");
+                        } else {
+                            fileWriter.write(type.getName().toLowerCase() + " " + ids.get(i).getValue() + " = " + ConvertExprToString(exprs.get(i))+ ";\n");
+                        }
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -688,6 +695,25 @@ public class CodeVisitor implements Visitor {
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+    @Override
+    public Object visit(LetOp letOp) {
+        symbolTableLocal = letOp.getSymbolTable();
+        try {
+            fileWriter.write("{\n");
+            letOp.getVarDeclOp().forEach(varDeclOp -> {
+                varDeclOp.accept(this);
+            });
+            letOp.getStatements().forEach(stat -> {
+                stat.accept(this);
+            });
+
+            return ConvertExprToString(letOp.getExpr());
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

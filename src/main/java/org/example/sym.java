@@ -8,19 +8,21 @@ package main.java.org.example;
 /** CUP generated interface containing symbol constants. */
 public interface sym {
   /* terminals */
-  public static final int CHAR_CONST = 49;
+  public static final int CHAR_CONST = 52;
   public static final int ASSIGNDECL = 22;
   public static final int CHAR = 11;
   public static final int GE = 29;
-  public static final int DOUBLE_CONST = 48;
+  public static final int DOUBLE_CONST = 51;
   public static final int DOUBLE = 9;
   public static final int SEMI = 5;
   public static final int INT = 7;
   public static final int OUT = 19;
+  public static final int GIVEN = 48;
   public static final int RBRAC = 17;
   public static final int REF = 37;
   public static final int MINUS = 24;
   public static final int OUTNL = 20;
+  public static final int IS = 49;
   public static final int AND = 35;
   public static final int NOT = 34;
   public static final int LT = 30;
@@ -34,11 +36,11 @@ public interface sym {
   public static final int PLUS = 23;
   public static final int IF = 41;
   public static final int ASSIGN = 27;
-  public static final int ID = 51;
+  public static final int ID = 54;
   public static final int LE = 31;
   public static final int EOF = 0;
   public static final int RETURN = 40;
-  public static final int INT_CONST = 47;
+  public static final int INT_CONST = 50;
   public static final int TRUE = 38;
   public static final int error = 1;
   public static final int PROGRAM = 2;
@@ -49,6 +51,7 @@ public interface sym {
   public static final int COLON = 6;
   public static final int ELSE = 43;
   public static final int WHILE = 44;
+  public static final int LET = 47;
   public static final int THEN = 42;
   public static final int NE = 33;
   public static final int END = 4;
@@ -57,7 +60,7 @@ public interface sym {
   public static final int DEF = 13;
   public static final int LBRAC = 16;
   public static final int FALSE = 39;
-  public static final int STRING_CONST = 50;
+  public static final int STRING_CONST = 53;
   public static final int GT = 28;
   public static final int DO = 45;
   public static final String[] terminalNames = new String[] {
@@ -108,6 +111,9 @@ public interface sym {
   "WHILE",
   "DO",
   "PAR",
+  "LET",
+  "GIVEN",
+  "IS",
   "INT_CONST",
   "DOUBLE_CONST",
   "CHAR_CONST",

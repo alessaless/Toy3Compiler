@@ -35,15 +35,15 @@ public class App {
 
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) p.parse().value;
 
-        /*tree=new JTree(root);
+        tree=new JTree(root);
 
-        JFrame framePannello=new JFrame();
+        /*JFrame framePannello=new JFrame();
         framePannello.setSize(400, 400);
         JScrollPane treeView = new JScrollPane(tree);
         framePannello.add(treeView);
-        framePannello.setVisible(true); */
+        framePannello.setVisible(true);
 
-        /* while (!scanner.yyatEOF()){
+        while (!scanner.yyatEOF()){
             p.debug_parse();
         } */
 
